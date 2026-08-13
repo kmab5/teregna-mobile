@@ -1,0 +1,170 @@
+import { useState } from "react";
+import { FlatList, Pressable, RefreshControl, TextInput, View } from "react-native";
+import { Link } from "expo-router";
+import { MapPin, Search, Users } from "lucide-react-native";
+import { Screen } from "@/components/ui/screen";
+import { Text } from "@/components/ui/text";
+import { Card } from "@/components/ui/card";
+import { useCategories, useDiscovery } from "@/lib/queries";
+import { useT } from "@/i18n/provider";
+import { cn } from "@/lib/cn";
+import type { ProviderPublic } from "@/lib/database.types";
+
+export default function BrowseScreen() {
+  const t = useT();
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState<string | null>(null);
+  const { data: categories } = useCategories();
+
+  /**
+   * Derived, not stored: a selection is only valid relative to the current
+   * category list, so a provider renaming their category cannot strand you on
+   * an empty result with no way to tell why.
+   */
+  const activeCategory =
+    category && categories?.includes(category) ? category : null;
+
+  const { data, isPending, isRefetching, refetch } = useDiscovery(
+    search,
+    activeCategory,
+  );
+
+  return (
+    <Screen title={t("browse.title")} subtitle={t("browse.subtitle")}>
+      <View className="flex-row items-center gap-2 rounded-sm border border-border bg-surface px-3 dark:border-d-border dark:bg-d-surface">
+        <Search size={16} color="#5B517A" />
+        <TextInput
+          value={search}
+          onChangeText={setSearch}
+          placeholder={t("browse.searchPlaceholder")}
+          accessibilityLabel={t("browse.searchLabel")}
+          placeholderTextColor="#5B517A"
+          className="h-12 flex-1 font-sans text-[16px] text-ink dark:text-d-ink"
+        />
+      </View>
+
+      {/* One category is the whole list, not a filter, so the row hides itself. */}
+      {categories && categories.length > 1 ? (
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={[null, ...categories]}
+          keyExtractor={(c) => c ?? "__all"}
+          className="mt-3 max-h-11 grow-0"
+          contentContainerClassName="gap-2 pr-4"
+          renderItem={({ item }) => {
+            const selected = activeCategory === item;
+            return (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                onPress={() => setCategory(selected ? null : item)}
+                className={cn(
+                  "h-9 justify-center rounded-full px-3.5",
+                  selected
+                    ? "bg-primary dark:bg-d-primary"
+                    : "bg-muted dark:bg-d-muted",
+                )}
+              >
+                <Text
+                  className={cn(
+                    "text-[13px] font-medium capitalize",
+                    selected
+                      ? "text-on-primary dark:text-d-on-primary"
+                      : "text-ink-muted dark:text-d-ink-muted",
+                  )}
+                >
+                  {item ?? t("common.all")}
+                </Text>
+              </Pressable>
+            );
+          }}
+        />
+      ) : null}
+
+      <FlatList
+        data={data ?? []}
+        keyExtractor={(p) => p.id}
+        className="mt-4"
+        contentContainerClassName="gap-3 pb-6"
+        refreshControl={
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#6D28D9" />
+        }
+        renderItem={({ item }) => <ProviderCard provider={item} />}
+        ListEmptyComponent={
+          isPending ? null : (
+            <Card className="items-center py-10">
+              <Text variant="title">{t("browse.emptyTitle")}</Text>
+              <Text variant="small" className="mt-1 text-center">
+                {search || activeCategory
+                  ? t("browse.emptyFiltered")
+                  : t("browse.emptyNone")}
+              </Text>
+            </Card>
+          )
+        }
+      />
+    </Screen>
+  );
+}
+
+function ProviderCard({ provider }: { provider: ProviderPublic }) {
+  const t = useT();
+  const busy = provider.queue_length > 0;
+
+  return (
+    <Link href={`/p/${provider.id}`} asChild>
+      <Pressable accessibilityRole="button">
+        <Card className="active:opacity-80">
+          <View className="flex-row items-start justify-between gap-3">
+            <Text variant="title" className="flex-1">
+              {provider.name}
+            </Text>
+            <View
+              className={cn(
+                "flex-row items-center gap-1 rounded-full px-2.5 py-1",
+                busy
+                  ? "bg-primary/10 dark:bg-d-primary/20"
+                  : "bg-accent/10 dark:bg-d-accent/20",
+              )}
+            >
+              <Users size={12} color={busy ? "#6D28D9" : "#15803D"} />
+              <Text
+                className="font-mono text-[12px]"
+                style={{ color: busy ? "#6D28D9" : "#15803D" }}
+              >
+                {provider.queue_length === 0
+                  ? t("queue.none")
+                  : t.plural("queue.waiting", provider.queue_length)}
+              </Text>
+            </View>
+          </View>
+
+          {provider.description ? (
+            <Text variant="small" numberOfLines={2} className="mt-1.5">
+              {provider.description}
+            </Text>
+          ) : null}
+
+          <View className="mt-3 flex-row items-center gap-3">
+            {provider.category ? (
+              <View className="rounded-full bg-muted px-2 py-0.5 dark:bg-d-muted">
+                <Text className="text-[11px] capitalize text-ink-muted dark:text-d-ink-muted">
+                  {provider.category}
+                </Text>
+              </View>
+            ) : null}
+            {provider.location ? (
+              <View className="flex-row items-center gap-1">
+                <MapPin size={11} color="#5B517A" />
+                <Text className="text-[11px] text-ink-muted dark:text-d-ink-muted">
+                  {provider.location}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+        </Card>
+      </Pressable>
+    </Link>
+  );
+}
