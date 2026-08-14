@@ -66,7 +66,7 @@ export function BusinessNav({ provider }: { provider: Provider | null }) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerClassName="px-5 gap-1 pb-1"
+        contentContainerClassName="px-5 gap-1 pb-1 pr-8"
       >
         {SECTIONS.map(({ path, labelKey, icon: Icon }) => {
           const active = pathname === path;

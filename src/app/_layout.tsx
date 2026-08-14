@@ -17,6 +17,8 @@ import {
 import { NotoSansEthiopic_400Regular } from "@expo-google-fonts/noto-sans-ethiopic";
 import { AuthProvider } from "@/lib/auth";
 import { ToastProvider } from "@/components/ui/toast";
+import { OfflineBanner } from "@/components/teregna/offline-banner";
+import { configureAndroidChannel } from "@/lib/push";
 import { I18nProvider, useLocale } from "@/i18n/provider";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -53,6 +55,12 @@ function Gate({ children }: { children: React.ReactNode }) {
     if (canRender) SplashScreen.hideAsync().catch(() => {});
   }, [canRender]);
 
+  // The Android channel must exist before any notification arrives, or it is
+  // delivered silently. Cheap and idempotent, so it runs on every launch.
+  useEffect(() => {
+    void configureAndroidChannel();
+  }, []);
+
   if (!canRender) return null;
   return <>{children}</>;
 }
@@ -69,6 +77,7 @@ export default function RootLayout() {
               <ToastProvider>
               <Gate>
                 <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+                <OfflineBanner />
                 <Stack screenOptions={{ headerShown: false }}>
                   {/* Names must match the files under src/app exactly.
                       expo-router warns rather than errors on a mismatch, so a

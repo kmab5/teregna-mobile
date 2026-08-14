@@ -20,6 +20,7 @@ import {
 import { errorKey } from "@/lib/errors";
 import { qk } from "@/lib/query-keys";
 import { supabase } from "@/lib/supabase";
+import { unregisterPush } from "@/lib/push";
 import { useT } from "@/i18n/provider";
 import type { Provider } from "@/lib/database.types";
 
@@ -88,7 +89,10 @@ function Settings({ provider }: { provider: Provider }) {
   const remove = useMutation({
     mutationFn: async () => {
       const result = await deleteMyAccount();
-      await supabase.auth.signOut();
+      // Clear the token first: a signed-out phone must stop receiving
+              // someone else’s queue.
+              await unregisterPush();
+              await supabase.auth.signOut();
       return result;
     },
     onSuccess: (result) => {
@@ -193,6 +197,9 @@ function Settings({ provider }: { provider: Provider }) {
             variant="outline"
             className="self-start"
             onPress={async () => {
+              // Clear the token first: a signed-out phone must stop receiving
+              // someone else’s queue.
+              await unregisterPush();
               await supabase.auth.signOut();
               qc.clear();
               router.replace("/(tabs)/browse");

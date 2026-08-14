@@ -33,6 +33,9 @@ export interface Profile {
   avatar_url: string | null;
   phone: string | null;
   locale: "en" | "am";
+  /** Expo push token. Null means no device registered, or push was declined. */
+  push_token: string | null;
+  push_platform: "ios" | "android" | "web" | null;
   created_at: string;
   updated_at: string;
 }

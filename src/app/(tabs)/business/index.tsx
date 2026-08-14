@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FlatList, RefreshControl, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import * as Haptics from "expo-haptics";
 import { Check, CheckCheck, CircleAlert, Play } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { BusinessScreen } from "@/components/teregna/business-screen";
 import { PositionBadge } from "@/components/teregna/position-badge";
+import { PushPrompt } from "@/components/teregna/push-prompt";
 import { StatusBadge } from "@/components/teregna/status-badge";
 import { useProfile, useProviderItems, useProviderQueue } from "@/lib/queries";
 import { finishRequest, startRequest } from "@/lib/rpc";
@@ -48,6 +50,9 @@ function Queue({ provider }: { provider: Provider }) {
   const finish = useMutation({
     mutationFn: (id: string) => finishRequest(id),
     onMutate: async (id) => {
+      // Finishing is a physical act - the customer in front of you is done.
+      // A tap of feedback confirms it without looking back at the screen.
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       await qc.cancelQueries({ queryKey: key });
       const previous = qc.getQueryData<QueueRow[]>(key);
       qc.setQueryData<QueueRow[]>(key, (old) => (old ?? []).filter((r) => r.id !== id));
@@ -91,6 +96,7 @@ function Queue({ provider }: { provider: Provider }) {
       ListHeaderComponent={
         <View className="gap-4">
           {remaining.length > 0 ? <SetupChecklist steps={steps} /> : null}
+          <PushPrompt audience="provider" />
           <View className="flex-row items-baseline gap-2">
             <Text className="font-mono-bold text-[30px] text-ink dark:text-d-ink">
               {rows.length}

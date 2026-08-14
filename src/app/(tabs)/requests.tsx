@@ -8,6 +8,8 @@ import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/teregna/status-badge";
+import { PushPrompt } from "@/components/teregna/push-prompt";
+import { SkeletonList } from "@/components/ui/skeleton";
 import { useMyRequests } from "@/lib/queries";
 import { cancelRequest } from "@/lib/rpc";
 import { isRace } from "@/lib/errors";
@@ -53,6 +55,13 @@ export default function RequestsScreen() {
   return (
     <Screen title={t("req.title")} subtitle={t("req.subtitle")}>
       <FlatList
+        ListHeaderComponent={
+          active.length > 0 ? (
+            <View className="pb-1">
+              <PushPrompt audience="receiver" />
+            </View>
+          ) : null
+        }
         data={[
           ...(active.length ? [{ header: t("req.waitingNow") }] : []),
           ...active,
@@ -81,7 +90,9 @@ export default function RequestsScreen() {
           )
         }
         ListEmptyComponent={
-          isPending ? null : (
+          isPending ? (
+            <SkeletonList count={3} />
+          ) : (
             <Card className="items-center py-10">
               <Inbox size={28} color="#5B517A" />
               <Text variant="title" className="mt-3">

@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import { Compass, ListChecks, Store, UserRound } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useT } from "@/i18n/provider";
 import { useAuth } from "@/lib/auth";
 
@@ -19,6 +20,7 @@ export default function TabsLayout() {
   const t = useT();
   const { user } = useAuth();
   const { colorScheme } = useColorScheme();
+  const insets = useSafeAreaInsets();
   const dark = colorScheme === "dark";
 
   return (
@@ -30,11 +32,22 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: dark ? "#1E1836" : "#FFFFFF",
           borderTopColor: dark ? "#2E2650" : "#E6DEF7",
-          height: 60,
-          paddingTop: 6,
-          paddingBottom: 6,
+          // Grow by the system inset rather than a fixed height. Without this
+          // the last row of labels sits inside Android's gesture strip and iOS's
+          // home-indicator area - readable, but the bottom few pixels of each
+          // target are swallowed by the OS.
+          height: 58 + insets.bottom,
+          paddingTop: 8,
+          paddingBottom: Math.max(insets.bottom, 8),
+          // Keeps the outer icons off the screen edge on wide phones.
+          paddingHorizontal: 8,
         },
-        tabBarLabelStyle: { fontFamily: "WorkSans_500Medium", fontSize: 11 },
+        tabBarItemStyle: { paddingHorizontal: 4 },
+        tabBarLabelStyle: {
+          fontFamily: "WorkSans_500Medium",
+          fontSize: 11,
+          marginTop: 2,
+        },
       }}
     >
       <Tabs.Screen

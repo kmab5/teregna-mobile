@@ -85,17 +85,59 @@ const SecureStoreAdapter = {
   },
 };
 
+/**
+ * Project credentials.
+ *
+ * Supabase replaced the legacy JWT `anon` / `service_role` keys with opaque
+ * `sb_publishable_...` / `sb_secret_...` keys. The legacy pair is deprecated at
+ * the end of 2026 and new projects no longer get them at all, so the publishable
+ * key is what this app uses.
+ *
+ * Functionally it is the same deal as the anon key: low privilege, safe to ship
+ * in a client bundle, and RLS is what actually protects the data. Only the
+ * format and the management story changed.
+ *
+ * Several names are accepted because the dashboard, the docs and older setups
+ * each suggest a different one, and a mismatch shows up as "cannot connect"
+ * rather than anything that names the real problem.
+ */
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!url || !anonKey) {
-  // Failing loudly at startup beats a screen of empty lists and a silent 401.
+const key =
+  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+  process.env.EXPO_PUBLIC_SUPABASE_KEY ??
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!url || !key) {
+  // Fail loudly at startup. A missing key otherwise surfaces as empty lists and
+  // silent 401s, which is a much longer path to the actual cause.
   throw new Error(
-    "Missing EXPO_PUBLIC_SUPABASE_URL or EXPO_PUBLIC_SUPABASE_ANON_KEY. Copy .env.example to .env.",
+    [
+      "Supabase is not configured.",
+      "",
+      "Create a .env file next to package.json containing:",
+      "",
+      "  EXPO_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co",
+      "  EXPO_PUBLIC_SUPABASE_KEY=sb_publishable_...",
+      "",
+      "Find both in the dashboard under Project Settings > API Keys.",
+      "Use the PUBLISHABLE key, never the secret one - this bundle ships to phones.",
+      "",
+      "Then restart with a cleared cache: npx expo start -c",
+      "(EXPO_PUBLIC_ vars are inlined at build time, so a plain reload will not pick up changes.)",
+    ].join("\n"),
   );
 }
 
-export const supabase = createClient(url, anonKey, {
+if (key.startsWith("sb_secret_") || key.includes("service_role")) {
+  // A secret key in a phone bundle bypasses RLS entirely. Refuse to start.
+  throw new Error(
+    "A SECRET Supabase key is configured in EXPO_PUBLIC_*. That key bypasses Row " +
+      "Level Security and must never ship in a client. Use the publishable key.",
+  );
+}
+
+export const supabase = createClient(url, key, {
   auth: {
     storage: Platform.OS === "web" ? undefined : SecureStoreAdapter,
     autoRefreshToken: true,

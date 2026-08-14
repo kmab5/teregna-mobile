@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LanguageToggle } from "@/components/teregna/language-toggle";
 import { supabase } from "@/lib/supabase";
+import { unregisterPush } from "@/lib/push";
 import { useAuth } from "@/lib/auth";
 import { useProfile } from "@/lib/queries";
 import { useT } from "@/i18n/provider";
@@ -43,7 +44,10 @@ export default function AccountScreen() {
                 variant="outline"
                 className="mt-3 self-start"
                 onPress={async () => {
-                  await supabase.auth.signOut();
+                  // Clear the token first: a signed-out phone must stop receiving
+              // someone else’s queue.
+              await unregisterPush();
+              await supabase.auth.signOut();
                   router.replace("/(tabs)/browse");
                 }}
               />

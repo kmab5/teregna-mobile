@@ -317,6 +317,16 @@ export const en = {
   "acct.deletedBody.one": "{count} open request was cancelled.",
   "acct.deletedBody.other": "{count} open requests were cancelled.",
 
+  "offline.title": "ከመስመር ውጭ ነዎት። ይህ ጊዜው ያለፈበት ሊሆን ይችላል።",
+  "push.enableTitle": "ተራዎ ሲደርስ ይወቁ",
+  "push.enableBody": "አገልግሎት ሰጪው ጥያቄዎን ሲጀምር እናሳውቅዎታለን።",
+  "push.enableProviderBody": "አንድ ሰው ሰልፍዎን ሲቀላቀል እናሳውቅዎታለን።",
+  "push.enable": "ማሳወቂያዎችን አብራ",
+  "push.notNow": "አሁን አይደለም",
+  "push.enabled": "ማሳወቂያዎች በርተዋል",
+  "push.denied": "ማሳወቂያዎች ጠፍተዋል። በስልክዎ ቅንብሮች ውስጥ ማብራት ይችላሉ።",
+  "push.unsupported": "ይህ መሣሪያ ማሳወቂያ መቀበል አይችልም።",
+
   "err.unauthenticated": "Your session ended. Sign in to pick up where you left off.",
   "err.not_owner": "That request is no longer available to you.",
   "err.provider_inactive": "This provider has stopped taking requests for now.",

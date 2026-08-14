@@ -9,7 +9,7 @@
  */
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { __cldrFallback } from "../src/i18n/plural.ts";
 
 const SRC = new URL("../src", import.meta.url).pathname;
@@ -68,11 +68,22 @@ check("every request mutation goes through rpc.ts", () => {
   assert.deepEqual(bad, [], `direct writes to requests: ${bad.join(", ")}`);
 });
 
-check("the anon key is the only Supabase key referenced", () => {
-  const bad = files
-    .filter(({ src }) => /SERVICE_ROLE|service_role/.test(src))
-    .map(({ path }) => path.replace(SRC, ""));
-  assert.deepEqual(bad, [], `service-role reference: ${bad.join(", ")}`);
+check("no privileged Supabase key is read from the environment", () => {
+  /*
+   * Checks for actual USE, not the mere appearance of the word: lib/supabase.ts
+   * deliberately mentions both `sb_secret_` and `service_role` in a startup
+   * guard that refuses to boot if one is configured. Banning the string outright
+   * would flag the very code that prevents the mistake.
+   */
+  const bad = [];
+  for (const { path, src } of files) {
+    for (const m of src.matchAll(/process\.env\.([A-Z0-9_]+)/g)) {
+      if (/SERVICE_ROLE|SECRET/.test(m[1])) {
+        bad.push(`${path.replace(SRC, "")}: ${m[1]}`);
+      }
+    }
+  }
+  assert.deepEqual(bad, [], `privileged key read in client code: ${bad.join(", ")}`);
 });
 
 /* ------------------------------------------------------- Hermes safety --- */
@@ -162,4 +173,38 @@ check("screen-level gutters are at least 20px", () => {
     }
   }
   assert.deepEqual(bad, [], `tight screen gutter: ${bad.join(" | ")}`);
-});console.log(`\n  ${pass} parity checks passed`);
+});check("no route is defined by both a file and a directory", () => {
+  /*
+   * `business.tsx` and `business/` next to each other register the same route
+   * name twice, and expo-router throws:
+   *   "A navigator cannot contain multiple 'Screen' components with the same name"
+   *
+   * This is easy to create by accident when a screen grows into a section, and
+   * easy to miss when updating a checkout in place - deleting the old file is a
+   * separate step from adding the new folder.
+   */
+  const appDir = join(SRC, "app");
+  const collisions = [];
+
+  function scan(dir) {
+    const entries = readdirSync(dir, { withFileTypes: true });
+    const dirs = new Set(entries.filter((e) => e.isDirectory()).map((e) => e.name));
+    for (const e of entries) {
+      if (!e.isFile() || !/\.tsx?$/.test(e.name)) continue;
+      const base = e.name.replace(/\.tsx?$/, "");
+      if (base !== "_layout" && dirs.has(base)) {
+        collisions.push(`${relative(SRC, join(dir, e.name))} vs ${base}/`);
+      }
+    }
+    for (const d of dirs) scan(join(dir, d));
+  }
+  scan(appDir);
+
+  assert.deepEqual(
+    collisions,
+    [],
+    `route defined twice - delete the file: ${collisions.join(", ")}`,
+  );
+});
+
+console.log(`\n  ${pass} parity checks passed`);

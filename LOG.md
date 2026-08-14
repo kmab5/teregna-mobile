@@ -3,11 +3,11 @@
 Running record of what is done, what is next, and the decisions worth not
 relitigating. Update this at the end of every working session.
 
-**Status:** feature-complete against the web app. Push notifications and polish
-are the remaining milestones.
+**Status:** feature-complete, plus push notifications and polish. Remaining work
+is shipping: EAS build, store listings.
 
 **Last verified:** `npm run verify` green — 0 type errors, 0 lint errors,
-10 parity checks, Android bundle. Runs on a physical Android device.
+11 parity checks, Android bundle. Runs on a physical Android device.
 
 ---
 
@@ -60,6 +60,18 @@ are the remaining milestones.
 - [x] **Sign in / sign up** — email + Google, language toggle before auth
 - [x] **Account** — profile summary, language, sign out
 
+### Push notifications
+- [x] `expo-notifications`, token stored on `profiles` via `upsert_profile`
+- [x] Postgres trigger sends through `pg_net` — new request, turn started,
+      completed, cancelled
+- [x] Permission asked in context, once, never on launch
+- [x] Sign-out clears the token
+
+### Polish
+- [x] Offline banner — stale beats looking empty
+- [x] Haptic confirmation on finish
+- [x] Skeleton loaders
+
 ### Provider portal (complete)
 - [x] Own stack under the Business tab, with dark chrome and section nav
 - [x] **Queue** — live, optimistic Start/Finish with rollback, escalating wait times
@@ -80,20 +92,7 @@ are the remaining milestones.
 
 ## Next up (in order)
 
-### 1. Push notifications
-The obvious mobile-only win. A provider should learn about a new request without
-the app open; a receiver should learn when their turn is close.
-- [ ] `expo-notifications` + push tokens on `profiles`
-- [ ] Supabase trigger or Edge Function to send on insert / position change
-- [ ] Permission prompt at the right moment (after first request, not on launch)
-
-### 2. Polish
-- [ ] Offline banner — the queue is read-only and stale rather than empty
-- [ ] Haptics on finish (`expo-haptics`) — it is a physical action
-- [ ] Swipe-to-finish on queue rows (Reanimated + Gesture Handler, both installed)
-- [ ] Skeleton loaders instead of blank screens
-
-### 3. Ship
+### 1. Ship
 - [x] `eas.json` with development / preview / production profiles
 - [ ] EAS build for Android, install on device
 - [ ] Google OAuth: register the `teregna://` deep link in Supabase redirect URLs
@@ -160,6 +159,32 @@ reported from real use — and worse on curved-glass phones where the last few
 pixels are hard to reach. A parity check now fails if any full-width screen
 container drops below 20px.
 
+**Publishable key, not anon.** Supabase replaced the legacy JWT `anon` /
+`service_role` pair with opaque `sb_publishable_` / `sb_secret_` keys. Legacy is
+deprecated at the end of 2026 and new projects are not issued it at all. The
+client accepts several env var names because the dashboard, the docs and older
+setups each suggest a different one, and a mismatch presents as "cannot connect"
+rather than anything that names the cause. Startup also refuses to boot if a
+SECRET key is found in an `EXPO_PUBLIC_` variable — that key bypasses RLS and
+must never reach a phone.
+
+**Push is sent from Postgres via pg_net, not an Edge Function.** The trigger
+already holds the row that changed and the recipient, so a round trip to a
+function adds a moving part without adding information. pg_net posts
+asynchronously, so a slow push endpoint cannot delay or roll back the transaction
+that finished someone’s request. Every failure path in the trigger is swallowed:
+a notification that fails to arrive is a worse day, one that breaks
+`finish_request` is a broken product.
+
+**Position changes do not notify.** A queue of ten advancing one step would fire
+ten notifications, and the app already updates live when it is open. Only four
+events send: joined, started, completed, cancelled.
+
+**Permission is asked in context, never on launch.** A prompt before someone
+knows what the app does gets declined, and on iOS a decline is close to permanent
+— the OS will not ask again. It appears once the person is already in a queue or
+already running one.
+
 **Realtime waits for the session before subscribing.** The session loads
 asynchronously from SecureStore, so a channel opened during first render can
 connect as `anon`, get every event filtered by RLS, and look connected while
@@ -198,6 +223,34 @@ interaction review needs a human with an Android phone running `npx expo start`.
 ---
 
 ## Session history
+
+### Session 4 — device fixes, keys, push, polish
+
+Three fixes from real use, then the remaining features.
+
+1. **Duplicate route crash.** `business.tsx` from Session 1 and the new
+   `business/` directory both registered a route named `business`. The shipped
+   zip was clean — the stale file was in the working tree, because unzipping over
+   a checkout adds files but never removes them. A parity check now fails when a
+   route is defined by both a file and a directory.
+
+2. **Supabase not connecting.** Migrated to the new publishable key, with the
+   project URL baked into `.env.example` and a startup error that names the file,
+   the variable, and the `-c` cache flag rather than failing silently.
+
+3. **Tab bar too close to the edge.** It used a fixed height with no safe-area
+   inset, so on Android gesture navigation the bottom of every target sat inside
+   the system gesture strip. Now grows by `insets.bottom`.
+
+Then push notifications end to end, plus the offline banner, haptics and
+skeletons.
+
+One bug worth recording from the backend side: the first version of the
+token-claiming logic failed with a unique-constraint violation, because
+`upsert_profile` runs with INVOKER rights and RLS quite correctly stopped one
+account clearing another account’s row. That is the policy working, not a
+mistake in it — the fix was a narrow definer helper that only ever nulls a token.
+Caught by a test that models two accounts sharing a phone.
 
 ### Session 3 — provider portal
 
