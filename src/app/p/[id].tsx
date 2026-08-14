@@ -147,7 +147,7 @@ export default function ProviderScreen() {
         </Pressable>
       </View>
 
-      <ScrollView className="flex-1 px-4" contentContainerClassName="pb-4">
+      <ScrollView className="flex-1 px-5" contentContainerClassName="pb-5">
         <View className="flex-row items-start justify-between gap-3">
           <Text variant="display" className="flex-1">
             {provider.name}
@@ -327,7 +327,7 @@ export default function ProviderScreen() {
       </ScrollView>
 
       {/* Anchored so the primary action is always under the thumb. */}
-      <View className="border-t border-border bg-bg px-4 py-3 dark:border-d-border dark:bg-d-bg">
+      <View className="border-t border-border bg-bg px-5 pb-4 pt-3 dark:border-d-border dark:bg-d-bg">
         <Button
           size="lg"
           title={

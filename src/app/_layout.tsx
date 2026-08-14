@@ -16,6 +16,7 @@ import {
 } from "@expo-google-fonts/jetbrains-mono";
 import { NotoSansEthiopic_400Regular } from "@expo-google-fonts/noto-sans-ethiopic";
 import { AuthProvider } from "@/lib/auth";
+import { ToastProvider } from "@/components/ui/toast";
 import { I18nProvider, useLocale } from "@/i18n/provider";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -65,17 +66,20 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <I18nProvider>
             <AuthProvider>
+              <ToastProvider>
               <Gate>
                 <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
                 <Stack screenOptions={{ headerShown: false }}>
+                  {/* Names must match the files under src/app exactly.
+                      expo-router warns rather than errors on a mismatch, so a
+                      stale name here is silent apart from a console line. */}
+                  <Stack.Screen name="index" />
                   <Stack.Screen name="(tabs)" />
                   <Stack.Screen name="(auth)" />
-                  <Stack.Screen
-                    name="provider/[providerId]"
-                    options={{ presentation: "card" }}
-                  />
+                  <Stack.Screen name="p/[id]" />
                 </Stack>
               </Gate>
+              </ToastProvider>
             </AuthProvider>
           </I18nProvider>
         </QueryClientProvider>

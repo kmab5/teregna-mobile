@@ -23,21 +23,35 @@ export function makeFormat(locale: Locale) {
     },
     dateTime(iso: string | null) {
       if (!iso) return "—";
-      return new Intl.DateTimeFormat(intl, {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(new Date(iso));
+      const d = new Date(iso);
+      try {
+        return new Intl.DateTimeFormat(intl, {
+          dateStyle: "medium",
+          timeStyle: "short",
+        }).format(d);
+      } catch {
+        return d.toLocaleString();
+      }
     },
     day(iso: string) {
-      return new Intl.DateTimeFormat(intl, { month: "short", day: "numeric" })
-        .format(new Date(iso));
+      const d = new Date(iso);
+      try {
+        return new Intl.DateTimeFormat(intl, { month: "short", day: "numeric" })
+          .format(d);
+      } catch {
+        return d.toLocaleDateString();
+      }
     },
     percent(rate: number | null) {
       if (rate === null) return "—";
-      return new Intl.NumberFormat(intl, {
-        style: "percent",
-        maximumFractionDigits: 0,
-      }).format(rate);
+      try {
+        return new Intl.NumberFormat(intl, {
+          style: "percent",
+          maximumFractionDigits: 0,
+        }).format(rate);
+      } catch {
+        return `${Math.round(rate * 100)}%`;
+      }
     },
   };
 }

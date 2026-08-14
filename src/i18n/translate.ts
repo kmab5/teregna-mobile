@@ -1,4 +1,5 @@
 import { INTL_LOCALE, type Locale } from "./config";
+import { createPluralSelector } from "./plural";
 import type { MessageKey, Messages } from "./messages/en";
 
 export type Values = Record<string, string | number>;
@@ -30,7 +31,9 @@ export type Translator = {
 };
 
 export function createTranslator(locale: Locale, messages: Messages): Translator {
-  const pluralRules = new Intl.PluralRules(INTL_LOCALE[locale]);
+  // Not `new Intl.PluralRules(...)` directly: that constructor does not exist on
+  // Hermes/Android and throws at render time.
+  const selectPlural = createPluralSelector(locale, INTL_LOCALE[locale]);
 
   const t = ((key: MessageKey, values?: Values) => {
     const template = messages[key];
@@ -46,7 +49,7 @@ export function createTranslator(locale: Locale, messages: Messages): Translator
   }) as Translator;
 
   t.plural = (base, count, values) => {
-    const category = pluralRules.select(count);
+    const category = selectPlural(count);
     const exact = `${base}.${category}` as MessageKey;
     const fallback = `${base}.other` as MessageKey;
     const template = messages[exact] ?? messages[fallback];
