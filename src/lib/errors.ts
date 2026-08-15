@@ -18,6 +18,7 @@ export type TeregnaErrorCode =
   | "invalid_mode"
   | "invalid_range"
   | "not_found"
+  | "self_request"
   | "unknown";
 
 /**
@@ -36,6 +37,7 @@ export const ERROR_KEYS: Record<TeregnaErrorCode, string> = {
   invalid_mode: "err.invalid_mode",
   invalid_range: "err.invalid_range",
   not_found: "err.not_found",
+  self_request: "err.self_request",
   unknown: "err.unknown",
 };
 

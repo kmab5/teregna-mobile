@@ -337,6 +337,7 @@ export const en = {
   "err.invalid_item": "The menu changed while you were choosing. Reload and pick again.",
   "err.invalid_mode": "Something went wrong restoring that request.",
   "err.invalid_range": "Pick an end date that comes after the start date.",
+  "err.self_request": "That is your own business. You cannot join your own queue.",
   "err.not_found": "We could not find that.",
   "err.unknown": "Something went wrong. Try again in a moment.",
 } as const;

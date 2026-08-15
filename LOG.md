@@ -198,6 +198,17 @@ try/catch is what guarantees a throwing import can never crash the app.
 rather than asking for something that cannot be granted. Test with a development
 build.
 
+**Realtime channel topics carry a unique suffix.** `supabase.channel(topic)`
+RETURNS AN EXISTING channel for a repeated topic rather than creating a second
+one. Because this subscription is asynchronous, a re-running effect can reach
+`.channel()` before the previous run’s cleanup removed it, get back a channel
+that is already subscribed, and throw `cannot add postgres_changes callbacks
+after subscribe()`. A per-instance suffix makes the collision impossible.
+
+**Node scripts resolve paths with `fileURLToPath`, never `url.pathname`.** On
+Windows a file URL yields `/D:/Code/...`, and joining that produces `D:\D:\Code\...`.
+It looks identical on Linux, which is why it shipped.
+
 **Realtime waits for the session before subscribing.** The session loads
 asynchronously from SecureStore, so a channel opened during first render can
 connect as `anon`, get every event filtered by RLS, and look connected while
@@ -236,6 +247,31 @@ interaction review needs a human with an Android phone running `npx expo start`.
 ---
 
 ## Session history
+
+### Session 6 — realtime, Windows, self-service
+
+Four fixes from real use:
+
+1. **Realtime threw on opening a provider.** Unique channel topics, plus a
+   `.catch()` so a failed subscription cannot surface as an unhandled rejection.
+
+2. **`npm test` failed on Windows.** `new URL(...).pathname` produced
+   `D:\D:\Code\...`. Now `fileURLToPath`. My tests only ever ran on Linux, where
+   the two are indistinguishable.
+
+3. **`npx eas build` could not find an executable.** The package is `eas-cli`,
+   the binary is `eas`, so `npx eas` looks for the wrong package. Added
+   `npm run build:dev` / `build:preview` / `build:prod`.
+
+4. **A provider was listed among the services they could request.** Fixed in the
+   database, not the clients: `provider_public` excludes the caller’s own
+   businesses, and `create_request` raises `self_request`. Hiding it is
+   presentation; the RPC guard is the actual rule, and it holds for a hand-rolled
+   call against an id the caller already knows.
+
+Fixing (4) broke an existing test that asserted a provider appears in discovery —
+checked as the owner. That was the new rule working, so the test now checks as a
+customer and asserts the owner does *not* see it.
 
 ### Session 5 — Expo Go crash
 

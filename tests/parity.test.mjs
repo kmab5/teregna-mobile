@@ -10,9 +10,15 @@
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 import { __cldrFallback } from "../src/i18n/plural.ts";
 
-const SRC = new URL("../src", import.meta.url).pathname;
+/*
+ * fileURLToPath, not .pathname: on Windows a file URL yields "/D:/Code/..." with
+ * a leading slash, and joining that produces "D:\\D:\\Code\\..." which does not
+ * exist. This only shows up off Linux, which is exactly why it shipped.
+ */
+const SRC = fileURLToPath(new URL("../src", import.meta.url));
 
 let pass = 0;
 function check(name, fn) {

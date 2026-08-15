@@ -108,6 +108,24 @@ export function useProfile() {
 /* ============================================================= realtime === */
 
 /**
+ * Channel topics must be unique per subscription instance.
+ *
+ * `supabase.channel(topic)` RETURNS AN EXISTING channel when one with that topic
+ * is already registered - it does not create a second one. React re-runs effects
+ * (StrictMode double-mounts in dev, and any dependency change in production), and
+ * because this subscription is asynchronous, a second run can reach
+ * `.channel(topic)` before the first run\'s cleanup has removed it. It then gets
+ * back a channel that is already subscribed, and `.on()` throws:
+ *
+ *   cannot add `postgres_changes` callbacks for realtime:queue:<id> after subscribe()
+ *
+ * A unique suffix makes that collision impossible. Cleanup removes the exact
+ * instance it created, so nothing leaks.
+ */
+let channelSeq = 0;
+const nextTopic = (base: string) => `${base}:${++channelSeq}`;
+
+/**
  * Subscribe to `requests` with the socket authenticated.
  *
  * The session loads asynchronously from SecureStore, so a channel opened during
@@ -127,7 +145,7 @@ async function subscribeToRequests(opts: {
   await supabase.realtime.setAuth(session.access_token);
 
   return supabase
-    .channel(opts.name)
+    .channel(nextTopic(opts.name))
     .on(
       "postgres_changes",
       { event: "*", schema: "public", table: "requests", filter: opts.filter },
@@ -186,14 +204,20 @@ export function useProviderQueue(providerId: string | undefined) {
         qc.invalidateQueries({ queryKey: qk.archive(providerId) });
         qc.invalidateQueries({ queryKey: qk.providerItems(providerId) });
       },
-    }).then((ch) => {
-      if (cancelled && ch) supabase.removeChannel(ch);
-      else channel = ch;
-    });
+    })
+      .then((ch) => {
+        // Resolving after unmount is normal, not an error - tear it straight
+        // down rather than leaving an orphan subscribed.
+        if (cancelled && ch) void supabase.removeChannel(ch);
+        else channel = ch;
+      })
+      .catch(() => {
+        // A failed subscription must not surface as an unhandled rejection.
+      });
 
     return () => {
       cancelled = true;
-      if (channel) supabase.removeChannel(channel);
+      if (channel) void supabase.removeChannel(channel);
     };
   }, [providerId, qc]);
 
@@ -245,14 +269,16 @@ export function useMyRequests(userId: string | undefined) {
       name: `my-requests:${userId}`,
       filter: `receiver_id=eq.${userId}`,
       onChange: () => qc.invalidateQueries({ queryKey: qk.myRequests() }),
-    }).then((ch) => {
-      if (cancelled && ch) supabase.removeChannel(ch);
-      else channel = ch;
-    });
+    })
+      .then((ch) => {
+        if (cancelled && ch) void supabase.removeChannel(ch);
+        else channel = ch;
+      })
+      .catch(() => {});
 
     return () => {
       cancelled = true;
-      if (channel) supabase.removeChannel(channel);
+      if (channel) void supabase.removeChannel(channel);
     };
   }, [userId, qc]);
 

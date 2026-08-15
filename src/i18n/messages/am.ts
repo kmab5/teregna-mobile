@@ -318,6 +318,7 @@ export const am: Messages = {
   "err.invalid_item": "እየመረጡ ሳሉ ምናሌው ተቀይሯል። እንደገና ጫኑና ይምረጡ።",
   "err.invalid_mode": "ጥያቄውን በመመለስ ላይ ችግር ተፈጥሯል።",
   "err.invalid_range": "ከመጀመሪያው ቀን በኋላ የሚመጣ የመጨረሻ ቀን ይምረጡ።",
+  "err.self_request": "ይህ የራስዎ ንግድ ነው። የራስዎን ሰልፍ መቀላቀል አይችሉም።",
   "err.not_found": "ያንን ማግኘት አልቻልንም።",
   "err.unknown": "ችግር ተፈጥሯል። ከጥቂት ጊዜ በኋላ ይሞክሩ።",
 };

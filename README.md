@@ -34,8 +34,12 @@ crashes and the permission prompt stays hidden. Everything else works normally.
 To test push:
 
 ```
-npx eas build --profile development --platform android
+npm run build:dev
 ```
+
+(`npx eas` fails with "could not determine executable to run" — the package is
+`eas-cli` while the binary is `eas`, so plain `npx eas` looks for the wrong
+package. The script uses `npx eas-cli@latest`.)
 
 Install that APK and use `npm start` against it as usual.
 
