@@ -31,6 +31,27 @@ Scan the QR code with Expo Go. Live reload, no Android Studio, no cable.
 from it in SDK 53. The app detects Expo Go and disables push entirely, so nothing
 crashes and the permission prompt stays hidden. Everything else works normally.
 
+**Push also needs an EAS project id.** Run this once, or `getExpoPushTokenAsync`
+cannot mint a token and registration fails with nothing useful in the message:
+
+```
+npx eas-cli@latest init
+```
+
+### When notifications are silent
+
+Run this in the Supabase SQL editor — it names the cause rather than leaving you
+to guess:
+
+```sql
+select * from private.push_diagnosis();
+select * from private.push_log order by created_at desc limit 20;
+```
+
+The usual answers, in order of likelihood: running in Expo Go (push is disabled
+there), no EAS project id, the recipient never granted permission, or `pg_net`
+not enabled under Database → Extensions.
+
 To test push:
 
 ```

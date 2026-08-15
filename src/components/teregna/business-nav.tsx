@@ -33,7 +33,7 @@ export function BusinessNav({ provider }: { provider: Provider | null }) {
 
   return (
     <View className="bg-chrome dark:bg-d-chrome">
-      <View className="flex-row items-center gap-2.5 px-5 pb-2 pt-3">
+      <View className="flex-row items-center gap-2.5 px-5 pb-2 pt-4">
         <Text
           numberOfLines={1}
           className="flex-1 font-medium text-[15px] text-on-chrome dark:text-d-on-chrome"

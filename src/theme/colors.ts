@@ -1,0 +1,61 @@
+import { useColorScheme } from "nativewind";
+
+/**
+ * Resolved colours for props that cannot take a class name.
+ *
+ * React Native icons and chart primitives take a `color` string, not a
+ * className, so NativeWind's `dark:` variant cannot reach them. Hardcoding a hex
+ * is what produced a queue pill at 1.70:1 in dark mode - the text colour stayed
+ * on its light-mode value while the background inverted around it.
+ *
+ * Pill values are the composited result of a 14% (light) / 22% (dark) tint over
+ * the surface, measured rather than eyeballed: every pairing below clears 4.5:1.
+ */
+export interface ThemeColors {
+  primary: string;
+  accent: string;
+  ink: string;
+  inkMuted: string;
+  warning: string;
+  destructive: string;
+  surface: string;
+  border: string;
+  onPrimary: string;
+  /** Text inside a primary-tinted pill. */
+  pillPrimaryText: string;
+  /** Text inside an accent-tinted pill. */
+  pillAccentText: string;
+}
+
+const LIGHT: ThemeColors = {
+  primary: "#6D28D9",
+  accent: "#15803D",
+  ink: "#2A1A4A",
+  inkMuted: "#5B517A",
+  warning: "#B45309",
+  destructive: "#B91C1C",
+  surface: "#FFFFFF",
+  border: "#E6DEF7",
+  onPrimary: "#FFFFFF",
+  pillPrimaryText: "#5B21B6", // 7.1:1 on the tinted pill
+  pillAccentText: "#14532D", // 7.5:1
+};
+
+const DARK: ThemeColors = {
+  primary: "#A78BFA",
+  accent: "#4ADE80",
+  ink: "#F2ECFF",
+  inkMuted: "#B7ACD6",
+  warning: "#FBBF24",
+  destructive: "#F87171",
+  surface: "#1E1836",
+  border: "#2E2650",
+  onPrimary: "#1B1233",
+  pillPrimaryText: "#C4B5FD", // 6.3:1
+  pillAccentText: "#86EFAC", // 7.5:1
+};
+
+export function useThemeColors(): ThemeColors {
+  const { colorScheme } = useColorScheme();
+  return colorScheme === "dark" ? DARK : LIGHT;
+}

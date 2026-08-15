@@ -7,7 +7,7 @@ relitigating. Update this at the end of every working session.
 is shipping: EAS build, store listings.
 
 **Last verified:** `npm run verify` green — 0 type errors, 0 lint errors,
-12 parity checks, Android bundle. Runs on a physical Android device.
+14 parity checks, Android bundle. Runs on a physical Android device.
 
 ---
 
@@ -198,6 +198,15 @@ try/catch is what guarantees a throwing import can never crash the app.
 rather than asking for something that cannot be granted. Test with a development
 build.
 
+**Colours that cannot be class names live in `theme/colors.ts`.** Icons, charts
+and anything taking a `color` prop cannot use NativeWind’s `dark:` variant, so a
+hardcoded hex silently stays on one theme’s value while the background inverts.
+That produced a 1.70:1 pill in dark mode.
+
+**Swallowed errors must still be recorded.** A push that fails must never break
+`finish_request`, but a failure nobody can see is indistinguishable from a
+working system with nothing to report. Every attempt is logged.
+
 **Realtime channel topics carry a unique suffix.** `supabase.channel(topic)`
 RETURNS AN EXISTING channel for a repeated topic rather than creating a second
 one. Because this subscription is asynchronous, a re-running effect can reach
@@ -247,6 +256,33 @@ interaction review needs a human with an Android phone running `npx expo start`.
 ---
 
 ## Session history
+
+### Session 7 — blank screens, contrast, silent push
+
+1. **Providers would not open.** The detail screen rendered the same empty View
+   for loading, missing and failed, so every one of them looked like the app
+   doing nothing. It now says which, with a way back. A provider can legitimately
+   be missing since discovery started excluding the caller’s own businesses.
+
+2. **Queue pill unreadable in dark mode.** The text colour was a hardcoded
+   light-mode hex while the tinted background inverted around it: measured at
+   **1.70:1**. Icons and chart primitives take a `color` string, not a class, so
+   `dark:` cannot reach them - that is now what `theme/colors.ts` exists for.
+   All four pill pairings measured, all clear 4.5:1.
+
+3. **The push prompt was Amharic in English.** A batch insert wrote the wrong
+   column into `en.ts`. Types cannot catch it - both are strings - and key parity
+   passed because the KEYS were right. Two checks now scan for Ethiopic script in
+   the English file and its absence in the Amharic one.
+
+4. **Notifications silent with no way to diagnose.** `create extension pg_net`
+   was never run (it is present on Supabase, but assuming that is how a feature
+   works on one project and not the next), and `send_push` ended in
+   `exception when others then null`. Swallowing is right; swallowing without
+   recording is not. Every attempt now lands in `private.push_log`, and
+   `private.push_diagnosis()` answers the question in one query.
+
+5. **Top spacing** increased under the status bar across every screen.
 
 ### Session 6 — realtime, Windows, self-service
 

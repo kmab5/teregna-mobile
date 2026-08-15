@@ -116,9 +116,21 @@ export async function registerForPush(): Promise<PushOutcome> {
     const projectId =
       Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
 
-    const token = (
-      await N.getExpoPushTokenAsync(projectId ? { projectId } : undefined)
-    ).data;
+    if (!projectId) {
+      // getExpoPushTokenAsync cannot mint a token without an EAS project id, and
+      // the id only appears after `eas init`. Worth naming, because the raw
+      // failure says nothing about which command is missing.
+      if (__DEV__) {
+        console.warn(
+          "[push] No EAS projectId. Run `npx eas-cli@latest init` once, then rebuild.",
+        );
+      }
+      return "error";
+    }
+
+    const token = (await N.getExpoPushTokenAsync({ projectId })).data;
+
+    if (__DEV__) console.log("[push] token registered:", token.slice(0, 24) + "…");
 
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) return "error";
@@ -129,7 +141,10 @@ export async function registerForPush(): Promise<PushOutcome> {
     });
 
     return "granted";
-  } catch {
+  } catch (error) {
+    // Silent failure here is the difference between "no notifications" and
+    // "no notifications AND no idea why".
+    if (__DEV__) console.warn("[push] registration failed:", error);
     return "error";
   }
 }

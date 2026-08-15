@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, ScrollView, TextInput, View } from "react-native";
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
@@ -15,6 +15,8 @@ import { qk } from "@/lib/query-keys";
 import { useAuth } from "@/lib/auth";
 import { useT, useLocale } from "@/i18n/provider";
 import { makeFormat } from "@/lib/format";
+import { useThemeColors } from "@/theme/colors";
+import { QueuePill } from "@/components/teregna/queue-pill";
 import { cn } from "@/lib/cn";
 import type { ItemView, ProviderPublic } from "@/lib/database.types";
 
@@ -22,12 +24,13 @@ export default function ProviderScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const t = useT();
   const { locale } = useLocale();
+  const c = useThemeColors();
   const fmt = makeFormat(locale);
   const router = useRouter();
   const qc = useQueryClient();
   const { user } = useAuth();
 
-  const { data: provider } = useQuery({
+  const { data: provider, isPending, isError, refetch } = useQuery({
     queryKey: qk.provider(id),
     queryFn: async (): Promise<ProviderPublic | null> => {
       const { data, error } = await supabase
@@ -121,29 +124,63 @@ export default function ProviderScreen() {
     send.mutate();
   }
 
-  if (!provider) {
+  /*
+   * Loading, missing and failed used to render the same empty View, so any of
+   * them looked identical to "the app did nothing" - which is exactly how it was
+   * reported. A provider can legitimately be missing here: they closed, or it is
+   * the caller’s own business, which discovery now excludes.
+   */
+  if (isPending || isError || !provider) {
     return (
-      <SafeAreaView className="flex-1 bg-bg dark:bg-d-bg">
+      <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
         <Stack.Screen options={{ headerShown: false }} />
-        <View className="flex-1 items-center justify-center px-6" />
+        <View className="flex-row items-center px-2 pt-2">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t("common.back")}
+            onPress={() => router.back()}
+            className="h-11 w-11 items-center justify-center rounded-full"
+          >
+            <ChevronLeft size={22} color={c.primary} />
+          </Pressable>
+        </View>
+
+        <View className="flex-1 items-center justify-center gap-3 px-6">
+          {isPending ? (
+            <ActivityIndicator color={c.primary} />
+          ) : (
+            <>
+              <Text variant="title" className="text-center">
+                {isError ? t("browse.errorTitle") : t("prov.notFoundTitle")}
+              </Text>
+              <Text variant="small" className="text-center">
+                {isError ? t("prov.loadFailed") : t("prov.notFoundBody")}
+              </Text>
+              <Button
+                title={isError ? t("common.retry") : t("common.back")}
+                variant="outline"
+                onPress={() => (isError ? refetch() : router.back())}
+              />
+            </>
+          )}
+        </View>
       </SafeAreaView>
     );
   }
 
-  const busy = provider.queue_length > 0;
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View className="flex-row items-center gap-2 px-2 pb-1 pt-1">
+      <View className="flex-row items-center gap-2 px-2 pb-1 pt-2">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t("common.back")}
           onPress={() => router.back()}
           className="h-11 w-11 items-center justify-center rounded-full active:bg-muted dark:active:bg-d-muted"
         >
-          <ChevronLeft size={22} color="#6D28D9" />
+          <ChevronLeft size={22} color={c.primary} />
         </Pressable>
       </View>
 
@@ -152,19 +189,7 @@ export default function ProviderScreen() {
           <Text variant="display" className="flex-1">
             {provider.name}
           </Text>
-          <View
-            className={cn(
-              "flex-row items-center gap-1 rounded-full px-2.5 py-1.5",
-              busy ? "bg-primary/10 dark:bg-d-primary/20" : "bg-accent/10 dark:bg-d-accent/20",
-            )}
-          >
-            <Users size={13} color={busy ? "#6D28D9" : "#15803D"} />
-            <Text className="font-mono text-[12px]" style={{ color: busy ? "#6D28D9" : "#15803D" }}>
-              {provider.queue_length === 0
-                ? t("queue.none")
-                : t.plural("queue.waiting", provider.queue_length)}
-            </Text>
-          </View>
+          <QueuePill count={provider.queue_length} />
         </View>
 
         <View className="mt-2 flex-row items-center gap-3">
@@ -177,7 +202,7 @@ export default function ProviderScreen() {
           ) : null}
           {provider.location ? (
             <View className="flex-row items-center gap-1">
-              <MapPin size={12} color="#5B517A" />
+              <MapPin size={12} color={c.inkMuted} />
               <Text variant="small">{provider.location}</Text>
             </View>
           ) : null}
@@ -237,7 +262,7 @@ export default function ProviderScreen() {
                       {item.stock !== null ? (
                         item.is_depleted ? (
                           <View className="mt-1 flex-row items-center gap-1">
-                            <PackageX size={12} color="#B45309" />
+                            <PackageX size={12} color={c.warning} />
                             <Text className="text-[11px] font-medium text-warning dark:text-d-warning">
                               {t("stock.depleted")}
                             </Text>
@@ -303,7 +328,7 @@ export default function ProviderScreen() {
 
         {depleted.length > 0 ? (
           <View className="mt-4 flex-row gap-2.5 rounded-sm bg-warning/10 p-3 dark:bg-d-warning/15">
-            <PackageX size={16} color="#B45309" />
+            <PackageX size={16} color={c.warning} />
             <View className="flex-1">
               <Text className="text-[14px] font-medium text-warning dark:text-d-warning">
                 {t("stock.warnTitle")}
@@ -338,7 +363,7 @@ export default function ProviderScreen() {
                 : t("send.joinSignedOut")
           }
           loading={send.isPending}
-          icon={<Send size={17} color="#FFFFFF" />}
+          icon={<Send size={17} color={c.onPrimary} />}
           onPress={onSubmit}
         />
       </View>

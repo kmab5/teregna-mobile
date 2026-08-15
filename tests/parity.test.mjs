@@ -50,6 +50,35 @@ check("both catalogues carry the same keys", () => {
   assert.deepEqual(a.filter((k) => !e.includes(k)), [], "extra in am");
 });
 
+check("English catalogue contains no Ethiopic script", () => {
+  /*
+   * A batch insert once wrote the Amharic column into en.ts, so English users
+   * saw Amharic in the push prompt. Types cannot catch it - both are strings -
+   * and the key-parity check passes because the KEYS were right.
+   *
+   * Ethiopic occupies U+1200-U+137F, so its presence in the English file is
+   * unambiguous.
+   */
+  const ethiopic = /[\u1200-\u137F]/;
+  const offenders = en
+    .split("\n")
+    .filter((line) => ethiopic.test(line))
+    .map((line) => line.trim().slice(0, 60));
+  assert.deepEqual(offenders, [], `Amharic text in en.ts: ${offenders.join(" | ")}`);
+});
+
+check("Amharic catalogue is actually in Amharic", () => {
+  // The mirror image: a key left untranslated is invisible to key parity.
+  const ethiopic = /[\u1200-\u137F]/;
+  const values = [...am.matchAll(/^  "([^"]+)": "([^"]*)",$/gm)];
+  // Proper nouns, codes and the app name legitimately have no Ethiopic.
+  const allowed = new Set(["app.name", "auth.email", "it.namePlaceholder"]);
+  const missing = values
+    .filter(([, k, v]) => !allowed.has(k) && v.length > 3 && !ethiopic.test(v))
+    .map(([, k]) => k);
+  assert.deepEqual(missing, [], `not translated: ${missing.join(", ")}`);
+});
+
 check("catalogue is non-trivial", () => {
   assert.ok(keys(en).length > 250, `only ${keys(en).length} keys`);
 });

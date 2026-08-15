@@ -30,7 +30,7 @@ export function Screen({
   contentClassName?: string;
 }) {
   const header = title ? (
-    <View className="flex-row items-start justify-between gap-3 pb-4 pt-1">
+    <View className="flex-row items-start justify-between gap-3 pb-4 pt-4">
       <View className="flex-1">
         <Text variant="display">{title}</Text>
         {subtitle ? (

@@ -70,7 +70,7 @@ export default function SignIn() {
     <SafeAreaView className="flex-1 bg-bg dark:bg-d-bg">
       <ScrollView
         className="flex-1 px-6"
-        contentContainerClassName="grow justify-center py-10"
+        contentContainerClassName="grow justify-center py-12"
         keyboardShouldPersistTaps="handled"
       >
         <Mark className="mb-6" />

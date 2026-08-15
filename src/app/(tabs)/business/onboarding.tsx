@@ -104,7 +104,7 @@ export default function Onboarding() {
     <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
       <ScrollView
         className="flex-1 px-5"
-        contentContainerClassName="pb-7 pt-3 gap-5"
+        contentContainerClassName="pb-7 pt-5 gap-5"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >

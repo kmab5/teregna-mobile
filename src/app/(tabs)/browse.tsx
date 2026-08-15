@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { FlatList, Pressable, RefreshControl, TextInput, View } from "react-native";
 import { Link } from "expo-router";
-import { MapPin, Search, Users } from "lucide-react-native";
+import { MapPin, Search } from "lucide-react-native";
 import { Screen } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
+import { QueuePill } from "@/components/teregna/queue-pill";
 import { useCategories, useDiscovery } from "@/lib/queries";
 import { useT } from "@/i18n/provider";
 import { cn } from "@/lib/cn";
@@ -109,8 +110,6 @@ export default function BrowseScreen() {
 }
 
 function ProviderCard({ provider }: { provider: ProviderPublic }) {
-  const t = useT();
-  const busy = provider.queue_length > 0;
 
   return (
     <Link href={`/p/${provider.id}`} asChild>
@@ -120,24 +119,7 @@ function ProviderCard({ provider }: { provider: ProviderPublic }) {
             <Text variant="title" className="flex-1">
               {provider.name}
             </Text>
-            <View
-              className={cn(
-                "flex-row items-center gap-1 rounded-full px-2.5 py-1",
-                busy
-                  ? "bg-primary/10 dark:bg-d-primary/20"
-                  : "bg-accent/10 dark:bg-d-accent/20",
-              )}
-            >
-              <Users size={12} color={busy ? "#6D28D9" : "#15803D"} />
-              <Text
-                className="font-mono text-[12px]"
-                style={{ color: busy ? "#6D28D9" : "#15803D" }}
-              >
-                {provider.queue_length === 0
-                  ? t("queue.none")
-                  : t.plural("queue.waiting", provider.queue_length)}
-              </Text>
-            </View>
+            <QueuePill count={provider.queue_length} />
           </View>
 
           {provider.description ? (
