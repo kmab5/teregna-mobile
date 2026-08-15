@@ -21,7 +21,23 @@ Scan the QR code with Expo Go. Live reload, no Android Studio, no cable.
 | `npm start` | Dev server + QR code |
 | `npm run android` | Open on a connected device/emulator |
 | `npm run verify` | Typecheck + lint + parity tests + Android bundle |
+| `npx expo install --check` | Report SDK version mismatches |
+| `npx expo install --fix` | Align packages to the SDK. **Re-run `npm run verify` after** |
 | `npm test` | Cross-platform parity checks |
+
+## Push notifications need a development build
+
+`expo-notifications` does not work in Expo Go — remote notifications were removed
+from it in SDK 53. The app detects Expo Go and disables push entirely, so nothing
+crashes and the permission prompt stays hidden. Everything else works normally.
+
+To test push:
+
+```
+npx eas build --profile development --platform android
+```
+
+Install that APK and use `npm start` against it as usual.
 
 ## How it talks to the backend
 

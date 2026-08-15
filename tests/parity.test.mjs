@@ -207,4 +207,36 @@ check("screen-level gutters are at least 20px", () => {
   );
 });
 
+check("Expo Go-hostile modules are never statically imported", () => {
+  /*
+   * `expo-notifications` throws AT IMPORT TIME in Expo Go on Android - remote
+   * notifications were removed from it in SDK 53. A static import does not fail
+   * gracefully: it takes down the module graph, and expo-router then reports
+   * every route as "missing the required default export" before dying on
+   * `Cannot read property 'ErrorBoundary' of undefined`. Not one of those
+   * messages mentions notifications.
+   *
+   * These must be reached through a dynamic import behind a runtime check.
+   */
+  const HOSTILE = ["expo-notifications"];
+  const bad = [];
+  for (const { path, src } of files) {
+    const code = src
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/(^|[^:])\/\/.*$/gm, "$1");
+    for (const mod of HOSTILE) {
+      // Static form only: `import ... from "mod"`. `await import("mod")` is fine.
+      const staticImport = new RegExp(
+        `import\\s[^;]*from\\s*["']${mod}["']`,
+      );
+      if (staticImport.test(code)) bad.push(`${path.replace(SRC, "")}: ${mod}`);
+    }
+  }
+  assert.deepEqual(
+    bad,
+    [],
+    `static import crashes Expo Go, use await import(): ${bad.join(", ")}`,
+  );
+});
+
 console.log(`\n  ${pass} parity checks passed`);

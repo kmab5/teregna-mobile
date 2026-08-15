@@ -5,7 +5,7 @@ import { Bell } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
-import { registerForPush } from "@/lib/push";
+import { isExpoGo, registerForPush } from "@/lib/push";
 import { useT } from "@/i18n/provider";
 
 const ASKED_KEY = "teregna_push_asked";
@@ -28,6 +28,9 @@ export function PushPrompt({ audience }: { audience: "receiver" | "provider" }) 
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    // Nothing to offer in Expo Go: remote notifications were removed from it in
+    // SDK 53. Asking would be a prompt that cannot possibly succeed.
+    if (isExpoGo) return;
     let cancelled = false;
     SecureStore.getItemAsync(ASKED_KEY)
       .then((asked) => {

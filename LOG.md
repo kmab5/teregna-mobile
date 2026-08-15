@@ -7,7 +7,7 @@ relitigating. Update this at the end of every working session.
 is shipping: EAS build, store listings.
 
 **Last verified:** `npm run verify` green — 0 type errors, 0 lint errors,
-11 parity checks, Android bundle. Runs on a physical Android device.
+12 parity checks, Android bundle. Runs on a physical Android device.
 
 ---
 
@@ -185,6 +185,19 @@ knows what the app does gets declined, and on iOS a decline is close to permanen
 — the OS will not ask again. It appears once the person is already in a queue or
 already running one.
 
+**expo-notifications is loaded lazily, never statically imported.** It throws AT
+IMPORT TIME in Expo Go on Android, and a static import does not fail gracefully —
+it takes the whole module graph down, after which expo-router reports every route
+as "missing the required default export" and dies on `Cannot read property
+’ErrorBoundary’ of undefined`. None of those messages mention notifications, which
+is what makes it expensive to diagnose. It is behind `await import()` plus a
+runtime check plus a try/catch: the check avoids a pointless attempt, the
+try/catch is what guarantees a throwing import can never crash the app.
+
+**Push is unavailable in Expo Go, by design.** The prompt hides itself there
+rather than asking for something that cannot be granted. Test with a development
+build.
+
 **Realtime waits for the session before subscribing.** The session loads
 asynchronously from SecureStore, so a channel opened during first render can
 connect as `anon`, get every event filtered by RLS, and look connected while
@@ -223,6 +236,23 @@ interaction review needs a human with an Android phone running `npx expo start`.
 ---
 
 ## Session history
+
+### Session 5 — Expo Go crash
+
+`expo-notifications` throws at import time in Expo Go, and `_layout.tsx` imported
+`push.ts`, so a single unavailable native module cascaded into a total render
+failure with error messages that pointed at routing rather than notifications.
+
+Now lazily imported behind a runtime check and a try/catch, with the prompt
+hidden in Expo Go. A parity check fails on any static import of an Expo
+Go-hostile module — verified by reintroducing the exact import.
+
+Also bumped expo to 57.0.13. **`npx expo install --check` reports seven other
+packages that may need aligning, and it cannot be resolved from the build
+environment here** — it needs Expo’s version API. Run `npx expo install --fix`
+locally and re-run `npm run verify`. The candidates are the ones installed with
+plain npm rather than `expo install`: the four `@expo-google-fonts` packages,
+async-storage, netinfo, react-native-svg and url-polyfill.
 
 ### Session 4 — device fixes, keys, push, polish
 

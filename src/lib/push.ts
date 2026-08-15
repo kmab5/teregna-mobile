@@ -1,40 +1,88 @@
 import { Platform } from "react-native";
-import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import { supabase } from "./supabase";
 
 /**
  * Push notifications.
  *
- * This is the one thing a mobile app gives the product that the web app cannot:
- * a provider learns about a request without the app open, and a receiver learns
+ * The one thing a mobile app gives this product that the web app cannot: a
+ * provider learns about a request without the app open, and a receiver learns
  * their turn is close without watching the screen.
  *
- * Permission is deliberately NOT requested on launch. A prompt before the person
- * knows what the app does gets denied, and on iOS a denial is close to
- * permanent. It is asked for at the moment it obviously pays off - right after
- * a first request is sent, or when a provider opens their queue.
+ * ---------------------------------------------------------------------------
+ * Why everything here is loaded lazily
+ *
+ * `expo-notifications` THROWS AT IMPORT TIME in Expo Go on Android: remote
+ * notifications were removed from Expo Go in SDK 53. A static `import` at the
+ * top of this file therefore does not fail gracefully - it takes down the whole
+ * module graph, and because the root layout imports this file, expo-router then
+ * reports every route as "missing the required default export" and finally dies
+ * on `Cannot read property 'ErrorBoundary' of undefined`. None of those messages
+ * mention notifications.
+ *
+ * So the module is pulled in with a dynamic import, behind an environment check
+ * AND a try/catch. The check avoids a pointless attempt; the try/catch is what
+ * guarantees a throwing import can never crash the app, even if the check is
+ * ever wrong about a runtime.
+ *
+ * The practical consequence: push does nothing in Expo Go. Test it with a
+ * development build (`eas build --profile development`).
+ * ---------------------------------------------------------------------------
  */
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+/**
+ * `executionEnvironment` reports `storeClient` for BOTH Expo Go and a dev build
+ * with expo-dev-client, so it cannot tell them apart. `appOwnership === "expo"`
+ * is Expo Go specifically, which is the only place the import actually fails.
+ */
+export const isExpoGo = Constants.appOwnership === "expo";
 
-/** Android needs an explicit channel or notifications arrive silently. */
-export async function configureAndroidChannel() {
+type NotificationsModule = typeof import("expo-notifications");
+
+let cached: NotificationsModule | null | undefined;
+
+async function loadNotifications(): Promise<NotificationsModule | null> {
+  if (cached !== undefined) return cached;
+
+  if (isExpoGo) {
+    cached = null;
+    return null;
+  }
+
+  try {
+    const mod = await import("expo-notifications");
+    mod.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+    cached = mod;
+    return mod;
+  } catch {
+    // A runtime without the native module. Push is simply unavailable.
+    cached = null;
+    return null;
+  }
+}
+
+/** Android delivers silently without an explicit channel. */
+export async function configureAndroidChannel(): Promise<void> {
   if (Platform.OS !== "android") return;
-  await Notifications.setNotificationChannelAsync("queue", {
-    name: "Queue updates",
-    importance: Notifications.AndroidImportance.HIGH,
-    vibrationPattern: [0, 250, 250, 250],
-    lightColor: "#6D28D9",
-  });
+  const N = await loadNotifications();
+  if (!N) return;
+  try {
+    await N.setNotificationChannelAsync("queue", {
+      name: "Queue updates",
+      importance: N.AndroidImportance.HIGH,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#6D28D9",
+    });
+  } catch {
+    // Non-fatal.
+  }
 }
 
 export type PushOutcome = "granted" | "denied" | "unsupported" | "error";
@@ -46,35 +94,36 @@ export type PushOutcome = "granted" | "denied" | "unsupported" | "error";
  * failure, and nothing in the app should break because of it.
  */
 export async function registerForPush(): Promise<PushOutcome> {
-  // Simulators have no push service. Checking avoids a confusing error in dev.
-  if (!Device.isDevice) return "unsupported";
+  const N = await loadNotifications();
+  if (!N) return "unsupported";
 
   try {
+    // A simulator has no push service; checking avoids a confusing dev error.
+    const Device = await import("expo-device");
+    if (!Device.isDevice) return "unsupported";
+
     await configureAndroidChannel();
 
-    const existing = await Notifications.getPermissionsAsync();
+    const existing = await N.getPermissionsAsync();
     let status = existing.status;
 
     if (status !== "granted") {
-      // Only prompts if the person has not already answered.
       if (!existing.canAskAgain) return "denied";
-      const asked = await Notifications.requestPermissionsAsync();
-      status = asked.status;
+      status = (await N.requestPermissionsAsync()).status;
     }
     if (status !== "granted") return "denied";
 
     const projectId =
-      Constants.expoConfig?.extra?.eas?.projectId ??
-      Constants.easConfig?.projectId;
+      Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
 
-    const token = (await Notifications.getExpoPushTokenAsync(
-      projectId ? { projectId } : undefined,
-    )).data;
+    const token = (
+      await N.getExpoPushTokenAsync(projectId ? { projectId } : undefined)
+    ).data;
 
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) return "error";
 
-    // Stored through the same RPC surface as everything else, so RLS applies.
+    // Through the same RPC surface as everything else, so RLS applies.
     await supabase.rpc("upsert_profile", {
       p: { push_token: token, push_platform: Platform.OS },
     });
@@ -85,7 +134,7 @@ export async function registerForPush(): Promise<PushOutcome> {
   }
 }
 
-/** Clears the token so a signed-out phone stops receiving someone's queue. */
+/** Clears the token so a signed-out phone stops receiving someone else's queue. */
 export async function unregisterPush(): Promise<void> {
   try {
     await supabase.rpc("upsert_profile", { p: { push_token: null } });
@@ -94,8 +143,14 @@ export async function unregisterPush(): Promise<void> {
   }
 }
 
-export function useNotificationResponse(onOpen: (data: unknown) => void) {
-  return Notifications.addNotificationResponseReceivedListener((response) => {
-    onOpen(response.notification.request.content.data);
+/** Returns an unsubscribe function, or a no-op where push is unavailable. */
+export async function onNotificationTapped(
+  handler: (data: Record<string, unknown>) => void,
+): Promise<() => void> {
+  const N = await loadNotifications();
+  if (!N) return () => {};
+  const sub = N.addNotificationResponseReceivedListener((response) => {
+    handler(response.notification.request.content.data as Record<string, unknown>);
   });
+  return () => sub.remove();
 }
