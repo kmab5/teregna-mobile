@@ -20,10 +20,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "app.teregna.mobile",
-      "permissions": [
-        "POST_NOTIFICATIONS"
-      ]
+      "package": "com.kmab.teregna",
+      "permissions": ["POST_NOTIFICATIONS"]
     },
     "web": {
       "output": "static",
@@ -45,6 +43,12 @@
     "experiments": {
       "typedRoutes": true
     },
-    "backgroundColor": "#FAF7FF"
+    "backgroundColor": "#FAF7FF",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ab17a730-a156-49bc-a8a0-fa3718d7544a"
+      }
+    }
   }
 }
