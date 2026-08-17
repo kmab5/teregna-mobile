@@ -40,7 +40,8 @@
           "color": "#6D28D9",
           "defaultChannel": "queue"
         }
-      ]
+      ],
+      "expo-splash-screen"
     ],
     "experiments": {
       "typedRoutes": true,
