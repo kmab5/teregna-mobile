@@ -1,6 +1,7 @@
 import { ScrollView, View, type ViewProps } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "./text";
+import { TopBar } from "./top-bar";
 import { cn } from "@/lib/cn";
 
 /**
@@ -18,6 +19,8 @@ export function Screen({
   children,
   scroll = false,
   right,
+  topBar = true,
+  topBarRight,
   className,
   contentClassName,
   ...props
@@ -27,6 +30,9 @@ export function Screen({
   /** Wrap children in a ScrollView. Do not use with a FlatList inside. */
   scroll?: boolean;
   right?: React.ReactNode;
+  /** The app bar. Off for screens that supply their own chrome. */
+  topBar?: boolean;
+  topBarRight?: React.ReactNode;
   contentClassName?: string;
 }) {
   const header = title ? (
@@ -45,6 +51,7 @@ export function Screen({
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
+      {topBar ? <TopBar right={topBarRight} /> : null}
       <View className={cn("flex-1 px-5", className)} {...props}>
         {header}
         {scroll ? (

@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, TextInput, View } from
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
-import { ChevronLeft, MapPin, PackageX, Send, Users } from "lucide-react-native";
+import { ChevronLeft, MapPin, PackageX, Send } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
@@ -134,7 +134,7 @@ export default function ProviderScreen() {
     return (
       <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
         <Stack.Screen options={{ headerShown: false }} />
-        <View className="flex-row items-center px-2 pt-2">
+        <View className="h-12 flex-row items-center border-b border-border px-2 dark:border-d-border">
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t("common.back")}
@@ -173,7 +173,7 @@ export default function ProviderScreen() {
     <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View className="flex-row items-center gap-2 px-2 pb-1 pt-2">
+      <View className="h-12 flex-row items-center gap-1 border-b border-border px-2 dark:border-d-border">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t("common.back")}

@@ -10,6 +10,9 @@ import { Field } from "@/components/ui/field";
 import { Sheet } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/toast";
 import { BusinessScreen } from "@/components/teregna/business-screen";
+import { ThemeToggle } from "@/components/teregna/theme-toggle";
+import { LanguageToggle } from "@/components/teregna/language-toggle";
+import { GuideSheet } from "@/components/teregna/guide-sheet";
 import { useProfile } from "@/lib/queries";
 import {
   deleteMyAccount,
@@ -44,6 +47,7 @@ function Settings({ provider }: { provider: Provider }) {
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [phone, setPhone] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
   const [typed, setTyped] = useState("");
 
   const active = useMutation({
@@ -190,6 +194,32 @@ function Settings({ provider }: { provider: Provider }) {
 
         <Card className="gap-3">
           <Text variant="title" className="text-[16px]">
+            {t("guide.title")}
+          </Text>
+          <Button
+            title={t("guide.open")}
+            variant="outline"
+            className="self-start"
+            onPress={() => setGuideOpen(true)}
+          />
+        </Card>
+
+        <Card className="gap-3">
+          <Text variant="title" className="text-[16px]">
+            {t("theme.title")}
+          </Text>
+          <ThemeToggle />
+        </Card>
+
+        <Card className="gap-3">
+          <Text variant="title" className="text-[16px]">
+            {t("common.language")}
+          </Text>
+          <LanguageToggle className="self-start" />
+        </Card>
+
+        <Card className="gap-3">
+          <Text variant="title" className="text-[16px]">
             {t("set.account")}
           </Text>
           <Button
@@ -219,6 +249,8 @@ function Settings({ provider }: { provider: Provider }) {
           </View>
         </Card>
       </ScrollView>
+
+      <GuideSheet open={guideOpen} onClose={() => setGuideOpen(false)} />
 
       <Sheet
         open={confirmOpen}

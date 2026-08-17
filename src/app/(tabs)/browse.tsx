@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FlatList, Pressable, RefreshControl, TextInput, View } from "react-native";
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 import { MapPin, Search } from "lucide-react-native";
 import { Screen } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
@@ -110,43 +110,64 @@ export default function BrowseScreen() {
 }
 
 function ProviderCard({ provider }: { provider: ProviderPublic }) {
+  const router = useRouter();
+
+  /*
+   * The touch target is a plain Pressable with a `style` prop and no className.
+   *
+   * NativeWind rewrites every element carrying a className through its JSX
+   * interop, so keeping the interop off the element that owns `onPress` takes
+   * one whole layer out of the touch path. The Card inside still uses classes -
+   * it has no handler to lose.
+   *
+   * Navigation is an explicit router.push rather than <Link asChild>, which
+   * injects onPress by cloning and can lose it entirely.
+   */
+  function open() {
+    if (__DEV__) console.log("[nav] opening provider", provider.id);
+    router.push({ pathname: "/p/[id]", params: { id: provider.id } });
+  }
 
   return (
-    <Link href={`/p/${provider.id}`} asChild>
-      <Pressable accessibilityRole="button">
-        <Card className="active:opacity-80">
-          <View className="flex-row items-start justify-between gap-3">
-            <Text variant="title" className="flex-1">
-              {provider.name}
-            </Text>
-            <QueuePill count={provider.queue_length} />
-          </View>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={provider.name}
+      onPress={open}
+      android_ripple={{ color: "#6D28D922" }}
+      style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+    >
+      <Card>
+        <View className="flex-row items-start justify-between gap-3">
+          <Text variant="title" className="flex-1">
+            {provider.name}
+          </Text>
+          <QueuePill count={provider.queue_length} />
+        </View>
 
-          {provider.description ? (
-            <Text variant="small" numberOfLines={2} className="mt-1.5">
-              {provider.description}
-            </Text>
+        {provider.description ? (
+          <Text variant="small" numberOfLines={2} className="mt-1.5">
+            {provider.description}
+          </Text>
+        ) : null}
+
+        <View className="mt-3 flex-row items-center gap-3">
+          {provider.category ? (
+            <View className="rounded-full bg-muted px-2 py-0.5 dark:bg-d-muted">
+              <Text className="text-[11px] capitalize text-ink-muted dark:text-d-ink-muted">
+                {provider.category}
+              </Text>
+            </View>
           ) : null}
-
-          <View className="mt-3 flex-row items-center gap-3">
-            {provider.category ? (
-              <View className="rounded-full bg-muted px-2 py-0.5 dark:bg-d-muted">
-                <Text className="text-[11px] capitalize text-ink-muted dark:text-d-ink-muted">
-                  {provider.category}
-                </Text>
-              </View>
-            ) : null}
-            {provider.location ? (
-              <View className="flex-row items-center gap-1">
-                <MapPin size={11} color="#5B517A" />
-                <Text className="text-[11px] text-ink-muted dark:text-d-ink-muted">
-                  {provider.location}
-                </Text>
-              </View>
-            ) : null}
-          </View>
-        </Card>
-      </Pressable>
-    </Link>
+          {provider.location ? (
+            <View className="flex-row items-center gap-1">
+              <MapPin size={11} color="#5B517A" />
+              <Text className="text-[11px] text-ink-muted dark:text-d-ink-muted">
+                {provider.location}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+      </Card>
+    </Pressable>
   );
 }

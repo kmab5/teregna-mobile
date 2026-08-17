@@ -40,19 +40,11 @@
           "color": "#6D28D9",
           "defaultChannel": "queue"
         }
-      ],
-      "expo-splash-screen"
+      ]
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": true
     },
-    "backgroundColor": "#FAF7FF",
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "ab17a730-a156-49bc-a8a0-fa3718d7544a"
-      }
-    }
+    "backgroundColor": "#FAF7FF"
   }
 }

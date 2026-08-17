@@ -7,7 +7,7 @@ relitigating. Update this at the end of every working session.
 is shipping: EAS build, store listings.
 
 **Last verified:** `npm run verify` green — 0 type errors, 0 lint errors,
-14 parity checks, Android bundle. Runs on a physical Android device.
+15 parity checks, Android bundle. Runs on a physical Android device.
 
 ---
 
@@ -71,6 +71,11 @@ is shipping: EAS build, store listings.
 - [x] Offline banner — stale beats looking empty
 - [x] Haptic confirmation on finish
 - [x] Skeleton loaders
+
+### First run, guide, theme
+- [x] **Intro slides** on first launch, skippable, with the language toggle on it
+- [x] **Guide sheet** — both sides of the product, reachable from either settings
+- [x] **Theme** — Light / Dark / System, persisted
 
 ### Provider portal (complete)
 - [x] Own stack under the Business tab, with dark chrome and section nav
@@ -198,6 +203,25 @@ try/catch is what guarantees a throwing import can never crash the app.
 rather than asking for something that cannot be granted. Test with a development
 build.
 
+**`reactCompiler` is off.** It is experimental and it runs on JSX that NativeWind
+has already rewritten through its own transform. Two layers rewriting the same
+elements is a plausible way for a prop like `onPress` to be dropped, and the
+compiler buys optimisation only — nothing here depends on it. The touch target
+also carries a plain `style` prop instead of a `className`, so the NativeWind
+interop is off the press path entirely.
+
+**Theme has three states, not two.** "Follow my phone" is a real preference, and
+a boolean toggle silently converts it into a fixed choice the first time it is
+touched.
+
+**Navigate with `router.push()`, never `<Link asChild>`.** `asChild` injects
+`onPress` by cloning the child element, and with `reactCompiler` enabled the
+child can be memoised such that the injected handler never arrives. The result is
+a control that silently does nothing - no error, no navigation, nothing in the
+logs, which is close to the worst possible failure to diagnose. The object form
+`push({ pathname: "/p/[id]", params: { id } })` is also the one typed routes
+actually check: a template literal is just `string` to them.
+
 **Colours that cannot be class names live in `theme/colors.ts`.** Icons, charts
 and anything taking a `color` prop cannot use NativeWind’s `dark:` variant, so a
 hardcoded hex silently stays on one theme’s value while the background inverts.
@@ -256,6 +280,40 @@ interaction review needs a human with an Android phone running `npx expo start`.
 ---
 
 ## Session history
+
+### Session 9 — dead taps (again), intro, guide, theme
+
+The provider cards were still unresponsive after Session 8, so the `Link asChild`
+theory was incomplete at best. Removed every remaining layer between the finger
+and the handler:
+
+- `reactCompiler` disabled — experimental, and stacked on top of NativeWind’s own
+  JSX transform.
+- The touch target now uses a `style` prop rather than `className`, keeping the
+  NativeWind interop off the element that owns `onPress`.
+- A `__DEV__` log on press, so the next report can distinguish "the handler never
+  fires" from "it fires and navigation does nothing" — two different bugs that
+  look identical from the outside, which is why this took three attempts.
+
+Also added the intro slides, the guide, and the theme switcher.
+
+### Session 8 — dead taps, real top bar
+
+1. **Provider cards were completely unresponsive.** Not a blank destination this
+   time - the press never fired. `<Link asChild>` clones its child to inject
+   `onPress`, and `reactCompiler` (on in app.json) can memoise the child so the
+   handler never lands. Replaced with explicit `router.push()`. A parity check
+   now fails on any `Link asChild`.
+
+   Worth noting I fixed the *destination* last session and assumed that was the
+   whole problem. It was two separate bugs on the same path, and the second one
+   was still there.
+
+2. **Top bar.** Adding padding twice did not answer this, because the request was
+   for chrome, not spacing: content began immediately under the status bar with
+   nothing between them. There is now a real 48px `TopBar` with the mark and a
+   bottom border, and the screens that build their own chrome (provider detail,
+   business section) match its height.
 
 ### Session 7 — blank screens, contrast, silent push
 

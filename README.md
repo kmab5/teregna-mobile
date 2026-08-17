@@ -76,6 +76,18 @@ The same contract as `teregna-web`, unchanged:
   derived server-side from `seq`; recomputing it locally would drift.
 - **Errors** arrive as bare codes, mapped to translated sentences.
 
+## Debugging a dead tap
+
+If a control does not respond, the `__DEV__` log on the provider card
+distinguishes the two failures that look identical from outside:
+
+- **No `[nav] opening provider` line** — the press never reached the handler.
+  Suspect a JSX-rewriting layer: `reactCompiler`, `Link asChild`, or a
+  `className` on the element that owns `onPress`.
+- **The line appears but nothing opens** — navigation is the problem. Check the
+  route exists and the name in the root `_layout.tsx` matches (`npm test` covers
+  both).
+
 ## Structure
 
 ```

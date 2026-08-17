@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FlatList, RefreshControl, View } from "react-native";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Inbox } from "lucide-react-native";
 import { Screen } from "@/components/ui/screen";
@@ -101,9 +101,11 @@ export default function RequestsScreen() {
               <Text variant="small" className="mt-1 text-center">
                 {t("req.emptyBody")}
               </Text>
-              <Link href="/(tabs)/browse" asChild>
-                <Button title={t("landing.ctaFind")} className="mt-5" />
-              </Link>
+              <Button
+                title={t("landing.ctaFind")}
+                className="mt-5"
+                onPress={() => router.push("/(tabs)/browse")}
+              />
             </Card>
           )
         }

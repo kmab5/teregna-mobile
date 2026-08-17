@@ -20,6 +20,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { OfflineBanner } from "@/components/teregna/offline-banner";
 import { configureAndroidChannel } from "@/lib/push";
 import { I18nProvider, useLocale } from "@/i18n/provider";
+import { ThemeProvider } from "@/theme/provider";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -73,6 +74,7 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <I18nProvider>
+            <ThemeProvider>
             <AuthProvider>
               <ToastProvider>
               <Gate>
@@ -83,6 +85,7 @@ export default function RootLayout() {
                       expo-router warns rather than errors on a mismatch, so a
                       stale name here is silent apart from a console line. */}
                   <Stack.Screen name="index" />
+                  <Stack.Screen name="intro" options={{ gestureEnabled: false }} />
                   <Stack.Screen name="(tabs)" />
                   <Stack.Screen name="(auth)" />
                   <Stack.Screen name="p/[id]" />
@@ -90,6 +93,7 @@ export default function RootLayout() {
               </Gate>
               </ToastProvider>
             </AuthProvider>
+            </ThemeProvider>
           </I18nProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

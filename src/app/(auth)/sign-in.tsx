@@ -67,7 +67,7 @@ export default function SignIn() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-bg dark:bg-d-bg">
+    <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-bg dark:bg-d-bg">
       <ScrollView
         className="flex-1 px-6"
         contentContainerClassName="grow justify-center py-12"

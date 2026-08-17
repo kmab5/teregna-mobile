@@ -274,4 +274,31 @@ check("Expo Go-hostile modules are never statically imported", () => {
   );
 });
 
+check("navigation uses router.push, not <Link asChild>", () => {
+  /*
+   * `asChild` injects onPress by cloning the child element. With
+   * `reactCompiler` enabled the child can be memoised such that the injected
+   * handler never arrives, and the result is a control that silently does
+   * nothing - no error, no navigation, nothing in the logs.
+   *
+   * router.push() with the object form has no cloning step, and is also the form
+   * typed routes actually check: a template literal is just `string` to them.
+   */
+  // Comments are stripped first: browse.tsx documents why it does NOT use
+  // asChild, and a naive match flags the very explanation.
+  const bad = files
+    .filter(({ src }) => {
+      const code = src
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/(^|[^:])\/\/.*$/gm, "$1");
+      return /<Link[^>]*\basChild\b/.test(code);
+    })
+    .map(({ path }) => path.replace(SRC, ""));
+  assert.deepEqual(
+    bad,
+    [],
+    `Link asChild can silently lose its handler: ${bad.join(", ")}`,
+  );
+});
+
 console.log(`\n  ${pass} parity checks passed`);

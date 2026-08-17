@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { Screen } from "@/components/ui/screen";
@@ -5,6 +6,8 @@ import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LanguageToggle } from "@/components/teregna/language-toggle";
+import { ThemeToggle } from "@/components/teregna/theme-toggle";
+import { GuideSheet } from "@/components/teregna/guide-sheet";
 import { supabase } from "@/lib/supabase";
 import { unregisterPush } from "@/lib/push";
 import { useAuth } from "@/lib/auth";
@@ -13,6 +16,7 @@ import { useT } from "@/i18n/provider";
 
 export default function AccountScreen() {
   const t = useT();
+  const [guideOpen, setGuideOpen] = useState(false);
   const router = useRouter();
   const { user } = useAuth();
   const { data: profile } = useProfile();
@@ -23,6 +27,23 @@ export default function AccountScreen() {
         <Card>
           <Text variant="title">{t("common.language")}</Text>
           <LanguageToggle className="mt-3 self-start" />
+        </Card>
+
+        <Card>
+          <Text variant="title">{t("theme.title")}</Text>
+          <View className="mt-3">
+            <ThemeToggle />
+          </View>
+        </Card>
+
+        <Card>
+          <Text variant="title">{t("guide.title")}</Text>
+          <Button
+            title={t("guide.open")}
+            variant="outline"
+            className="mt-3 self-start"
+            onPress={() => setGuideOpen(true)}
+          />
         </Card>
 
         {user ? (
@@ -67,6 +88,8 @@ export default function AccountScreen() {
           </Card>
         )}
       </View>
+
+      <GuideSheet open={guideOpen} onClose={() => setGuideOpen(false)} />
     </Screen>
   );
 }
