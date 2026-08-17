@@ -1,12 +1,16 @@
-import { Pressable, View } from "react-native";
-import { Moon, Smartphone, Sun } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
-import { useThemePreference, type ThemePreference } from "@/theme/provider";
-import { useThemeColors } from "@/theme/colors";
 import { useT } from "@/i18n/provider";
 import { cn } from "@/lib/cn";
+import { useThemeColors } from "@/theme/colors";
+import { useThemePreference, type ThemePreference } from "@/theme/provider";
+import { Moon, Smartphone, Sun } from "lucide-react-native";
+import { Pressable, View } from "react-native";
 
-const OPTIONS: { value: ThemePreference; labelKey: string; icon: typeof Sun }[] = [
+const OPTIONS: {
+  value: ThemePreference;
+  labelKey: string;
+  icon: typeof Sun;
+}[] = [
   { value: "light", labelKey: "theme.light", icon: Sun },
   { value: "dark", labelKey: "theme.dark", icon: Moon },
   { value: "system", labelKey: "theme.system", icon: Smartphone },
@@ -40,7 +44,7 @@ export function ThemeToggle() {
           >
             <View
               className={cn(
-                "items-center gap-1.5 rounded-md border py-3",
+                "items-center gap-1.5 rounded-md border p-4",
                 active
                   ? "border-primary bg-primary/[0.10] dark:border-d-primary dark:bg-d-primary/20"
                   : "border-border bg-surface dark:border-d-border dark:bg-d-surface",
