@@ -171,3 +171,33 @@ export interface Analytics {
 
 export const ACTIVE_STATUSES: RequestStatus[] = ["queued", "in_progress"];
 export const TERMINAL_STATUSES: RequestStatus[] = ["completed", "cancelled"];
+
+/**
+ * public.order_detail — one order with the counterparty contact each side needs.
+ *
+ * Phone numbers are gated twice: by role AND by status. A provider sees the
+ * customer number for a request in their queue; a receiver sees the provider
+ * number only once work has started. Either can be null, and null means "not
+ * yours to see" rather than "not recorded".
+ */
+export interface OrderDetail {
+  id: string;
+  provider_id: string;
+  receiver_id: string | null;
+  status: RequestStatus;
+  seq: number;
+  note: string | null;
+  created_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+  cancelled_at: string | null;
+  provider_name: string;
+  provider_location: string | null;
+  receiver_name: string;
+  receiver_phone: string | null;
+  provider_phone: string | null;
+  items: RequestItemSnapshot[];
+  total_price: number;
+  /** Sum of each item duration times its quantity, in minutes. 0 when unset. */
+  expected_minutes: number;
+}

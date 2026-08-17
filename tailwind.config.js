@@ -29,12 +29,15 @@ module.exports = {
         muted: "#F0ECF9",
         warning: "#B45309",
         destructive: "#B91C1C",
-        // Provider chrome. Deliberately NOT `ink` - that token inverts between
-        // themes, and using it as a background produced white-on-white on web.
-        chrome: "#2A1A4A",
-        "on-chrome": "#FFFFFF",
-        "on-chrome-muted": "#BDB4D4",
-        "chrome-border": "#3D2E63",
+        // Provider chrome.
+        //
+        // Light mode is now a LIGHT bar: a dark header in an otherwise light app
+        // read as a rendering fault rather than as deliberate separation. The
+        // section is distinguished by its own nav row and accent instead.
+        chrome: "#F3EEFE",
+        "on-chrome": "#2A1A4A",
+        "on-chrome-muted": "#5B517A",
+        "chrome-border": "#DDD2F5",
 
         // --- dark ---
         "d-bg": "#141024",
@@ -50,10 +53,10 @@ module.exports = {
         "d-muted": "#262046",
         "d-warning": "#FBBF24",
         "d-destructive": "#F87171",
-        "d-chrome": "#38306E",
+        "d-chrome": "#241D42",
         "d-on-chrome": "#F2ECFF",
         "d-on-chrome-muted": "#B7ACD6",
-        "d-chrome-border": "#4A4088",
+        "d-chrome-border": "#382F63",
       },
       fontFamily: {
         display: ["Outfit_600SemiBold"],

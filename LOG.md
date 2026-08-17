@@ -95,6 +95,12 @@ is shipping: EAS build, store listings.
 
 ---
 
+## Next up
+
+- [ ] **Receipt confirmation.** "I have received my request" for customers and
+      "I have received my payment" for providers, as groundwork for ratings.
+- [ ] Device pass on the new navigation: mode switch, swipe, bottom bar.
+
 ## Next up (in order)
 
 ### 1. Ship
@@ -203,6 +209,16 @@ try/catch is what guarantees a throwing import can never crash the app.
 rather than asking for something that cannot be granted. Test with a development
 build.
 
+**Never import `@react-navigation/*`.** expo-router vendors its own copy as of
+SDK 56 and the public packages are a build error. Anything the navigator needs -
+including tabBar prop types - comes from expo-router itself.
+
+**Overdue alerts need a scheduled job, not a trigger.** Nothing changes in the
+database when a wait crosses its threshold: the row was written once and the
+clock moved. `overdue_notified_at` makes the sweep fire once per request, because
+a provider who gets the same alert every five minutes turns notifications off
+entirely - losing every other alert with it.
+
 **`reactCompiler` is off.** It is experimental and it runs on JSX that NativeWind
 has already rewritten through its own transform. Two layers rewriting the same
 elements is a plausible way for a prop like `onPress` to be dropped, and the
@@ -280,6 +296,79 @@ interaction review needs a human with an Android phone running `npx expo start`.
 ---
 
 ## Session history
+
+### Session 12 — web parity
+
+Audited the web app against everything the backend had gained. It was **77
+catalogue keys behind** and missing four features:
+
+- **Order detail** (`/orders/[orderId]`), server-rendered because it is a page
+  people bookmark and forward — it should not need hydration to show a phone
+  number somebody is standing there waiting to dial. The time-dependent parts
+  (overdue warning, relative wait) are a client component, since rendering them
+  on the server would freeze them at request time.
+- **Order links** from queue rows, archive rows and request cards, so a completed
+  job stays reachable.
+- **Guide** and a **three-state theme control**, matching mobile.
+- **Phone required at signup.**
+
+Deliberately NOT ported: push notifications, first-run intro slides, offline
+banner. A browser has its own answers to all three.
+
+A drift check now lives in the web test suite. It cannot see the mobile repo, so
+it asserts the shape drift produces — a catalogue missing whole feature
+namespaces — which is what would have caught this months earlier.
+
+### Session 11 — mode switching, swipe, history
+
+The deferred list, done.
+
+- **Two surfaces, not one tab bar.** `(customer)` and `(business)` are separate
+  route groups with their own tabs and chrome. The top bar carries the switch,
+  so neither is a trap. A provider working a shift no longer sees Browse.
+- **Swipe between tabs**, with a fade transition and a rebuilt bottom bar - one
+  sliding pill rather than five independently animating items.
+- **Order history** (`/history`): every order, filterable, and each opens its
+  full detail. Provider archive rows now do the same, so a completed job from
+  three weeks ago is as reachable as this morning’s.
+- **Account overhauled** around what people come there to do - history,
+  preferences, sign out - rather than mirroring the data model.
+- **Phone required at signup**, carried through signup metadata into the
+  provisioning trigger.
+- **Overdue-wait alerts** via a pg_cron sweep every five minutes.
+
+The navigation had to be rebuilt mid-session: **as of SDK 56 expo-router is
+incompatible with `@react-navigation/*`**, so the pager-backed material tabs I
+started with were a hard build error. The swipe is now a pan gesture over
+expo-router’s own tabs, with `failOffsetY` so scrolling a list does not fight the
+navigator. A parity check bans the import.
+
+### Session 10 — assets, contrast, orders
+
+- **Brand assets generated** from the mark: app icon, Android adaptive
+  foreground/background/monochrome, splash (light and dark), notification icon,
+  favicon. Every Expo template file removed.
+- **Queue pill was 1.47:1 in dark mode.** The cause was `bg-primary/[0.14]`:
+  NativeWind does not reliably emit arbitrary-opacity backgrounds, and when it
+  does not the background stays FULLY OPAQUE — lavender text on lavender. Now
+  solid measured pairs (9.2:1 and 8.3:1). A parity check bans the syntax.
+- **Business chrome is light in light mode.** A dark header in an otherwise
+  light app read as a rendering fault rather than deliberate separation.
+- **Status bar seam** removed: the top bar now shares the page background.
+- **Selection tick** is a drawn icon, not a "✓" glyph, which carried its own
+  line box and clipped against its container.
+- **Order detail screen** (`/order/[id]`) with line items, total, expected time,
+  and the counterparty phone number.
+
+The phone rule is worth stating: a provider sees a customer number for a request
+in their queue; a customer sees a provider number only once work has started. It
+is enforced by the database, not the client.
+
+That gating originally failed its test, and the reason was instructive: RLS
+correctly stopped a receiver reading the owner’s profile row. The fix is a
+definer accessor returning ONLY the phone, rather than a policy widening access
+to `profiles` — that row also holds `push_token`, and a policy permissive enough
+to share a phone would hand over the token too.
 
 ### Session 9 — dead taps (again), intro, guide, theme
 

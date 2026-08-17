@@ -28,8 +28,10 @@ export function TopBar({
   return (
     <View
       className={cn(
-        "h-12 flex-row items-center gap-2.5 border-b border-border px-5",
-        "bg-surface dark:border-d-border dark:bg-d-surface",
+        "h-12 flex-row items-center gap-2.5 border-b px-5",
+        // Same background as the safe-area strip above it. A different surface
+        // colour here draws a visible seam right under the status bar.
+        "border-border bg-bg dark:border-d-border dark:bg-d-bg",
         className,
       )}
     >

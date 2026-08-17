@@ -1,5 +1,4 @@
 import { ScrollView, View, type ViewProps } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "./text";
 import { TopBar } from "./top-bar";
 import { cn } from "@/lib/cn";
@@ -19,7 +18,7 @@ export function Screen({
   children,
   scroll = false,
   right,
-  topBar = true,
+  topBar = false,
   topBarRight,
   className,
   contentClassName,
@@ -50,7 +49,7 @@ export function Screen({
   ) : null;
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
+    <View className="flex-1 bg-bg dark:bg-d-bg">
       {topBar ? <TopBar right={topBarRight} /> : null}
       <View className={cn("flex-1 px-5", className)} {...props}>
         {header}
@@ -66,6 +65,6 @@ export function Screen({
           children
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

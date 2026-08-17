@@ -25,13 +25,8 @@ export function QueuePill({
 
   return (
     <View
-      className={cn(
-        "flex-row items-center gap-1.5 rounded-full px-2.5 py-1",
-        busy
-          ? "bg-primary/[0.14] dark:bg-d-primary/[0.22]"
-          : "bg-accent/[0.14] dark:bg-d-accent/[0.22]",
-        className,
-      )}
+      className={cn("flex-row items-center gap-1.5 rounded-full px-2.5 py-1", className)}
+      style={{ backgroundColor: busy ? c.pillPrimaryBg : c.pillAccentBg }}
     >
       <Users size={12} color={busy ? c.pillPrimaryText : c.pillAccentText} />
       <Text

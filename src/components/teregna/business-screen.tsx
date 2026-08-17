@@ -1,11 +1,9 @@
 import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Store } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BusinessNav } from "./business-nav";
 import { useMyProvider } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
 import { useT } from "@/i18n/provider";
@@ -29,8 +27,7 @@ export function BusinessScreen({
 
   if (!user) {
     return (
-      <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
-        <View className="flex-1 justify-center px-5">
+      <View className="flex-1 justify-center bg-bg px-5 dark:bg-d-bg">
           <Card>
             <Text variant="title">{t("auth.provTitle")}</Text>
             <Text variant="small" className="mt-1">
@@ -42,23 +39,19 @@ export function BusinessScreen({
               onPress={() => router.push("/(auth)/sign-in")}
             />
           </Card>
-        </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (isPending) {
     return (
-      <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
-        <BusinessNav provider={null} />
-      </SafeAreaView>
+      <View className="flex-1 bg-bg dark:bg-d-bg" />
     );
   }
 
   if (!provider) {
     return (
-      <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
-        <View className="flex-1 justify-center px-5">
+      <View className="flex-1 justify-center bg-bg px-5 dark:bg-d-bg">
           <Card className="items-center py-10">
             <Store size={28} color="#5B517A" />
             <Text variant="title" className="mt-3 text-center">
@@ -70,18 +63,12 @@ export function BusinessScreen({
             <Button
               title={t("ob.openQueue")}
               className="mt-5"
-              onPress={() => router.push("/business/onboarding" as never)}
+              onPress={() => router.push("/(business)/onboarding" as never)}
             />
           </Card>
-        </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
-  return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
-      <BusinessNav provider={provider} />
-      <View className="flex-1">{children(provider)}</View>
-    </SafeAreaView>
-  );
+  return <View className="flex-1">{children(provider)}</View>;
 }

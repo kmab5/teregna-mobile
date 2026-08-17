@@ -46,7 +46,7 @@ export function ThemeToggle() {
               className={cn(
                 "items-center gap-1.5 rounded-md border p-4",
                 active
-                  ? "border-primary bg-primary/[0.10] dark:border-d-primary dark:bg-d-primary/20"
+                  ? "border-primary bg-muted dark:border-d-primary dark:bg-d-muted"
                   : "border-border bg-surface dark:border-d-border dark:bg-d-surface",
               )}
             >

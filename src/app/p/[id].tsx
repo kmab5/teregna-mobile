@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, TextInput, View } from
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
-import { ChevronLeft, MapPin, PackageX, Send } from "lucide-react-native";
+import { Check, ChevronLeft, MapPin, PackageX, Send } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
@@ -97,7 +97,7 @@ export default function ProviderScreen() {
       setSelected({});
       setNote("");
       setIdempotencyKey(Crypto.randomUUID());
-      router.replace("/(tabs)/requests");
+      router.replace("/(customer)/requests");
     },
     onError: (e) => Alert.alert(t(errorKey(e) as never)),
   });
@@ -237,19 +237,18 @@ export default function ProviderScreen() {
                         : "border-border bg-surface dark:border-d-border dark:bg-d-surface",
                     )}
                   >
+                    {/* A drawn icon, not a text glyph: "✓" carries its own line
+                        box and font metrics, so it sat off-centre and clipped
+                        against a 20px square. */}
                     <View
                       className={cn(
-                        "h-5 w-5 items-center justify-center rounded-sm border-2",
+                        "h-6 w-6 items-center justify-center rounded-sm border-2",
                         isSel
                           ? "border-primary bg-primary dark:border-d-primary dark:bg-d-primary"
                           : "border-border dark:border-d-border",
                       )}
                     >
-                      {isSel ? (
-                        <Text className="text-[12px] text-on-primary dark:text-d-on-primary">
-                          ✓
-                        </Text>
-                      ) : null}
+                      {isSel ? <Check size={15} color={c.onPrimary} strokeWidth={3} /> : null}
                     </View>
 
                     <View className="flex-1">

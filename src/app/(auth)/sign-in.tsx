@@ -11,6 +11,9 @@ import { supabase } from "@/lib/supabase";
 import { signInWithGoogle } from "@/lib/oauth";
 import { useT } from "@/i18n/provider";
 
+/** Permissive on purpose: local formats vary and a strict pattern rejects real numbers. */
+const PHONE_RE = /^[+0-9][0-9\s-]{6,}$/;
+
 export default function SignIn() {
   const t = useT();
   const router = useRouter();
@@ -20,6 +23,7 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
@@ -28,7 +32,7 @@ export default function SignIn() {
     // replace, not push: the auth screen must not sit in the back stack for
     // someone to swipe back into once signed in.
     if (next) router.replace(next as never);
-    else router.replace("/(tabs)/browse");
+    else router.replace("/(customer)/browse");
   }
 
   async function submitEmail() {
@@ -39,7 +43,14 @@ export default function SignIn() {
         ? await supabase.auth.signUp({
             email: email.trim(),
             password,
-            options: { data: { display_name: name.trim() || undefined } },
+            options: {
+              data: {
+                display_name: name.trim() || undefined,
+                // Carried through the signup metadata so the provisioning
+                // trigger can store it without a second round trip.
+                phone: phone.trim(),
+              },
+            },
           })
         : await supabase.auth.signInWithPassword({
             email: email.trim(),
@@ -101,13 +112,30 @@ export default function SignIn() {
 
         <View className="gap-4">
           {mode === "signup" ? (
-            <Field
-              label={t("auth.name")}
-              value={name}
-              onChangeText={setName}
-              placeholder={t("auth.namePlaceholder")}
-              autoComplete="name"
-            />
+            <>
+              <Field
+                label={t("auth.name")}
+                value={name}
+                onChangeText={setName}
+                placeholder={t("auth.namePlaceholder")}
+                autoComplete="name"
+              />
+              {/*
+                Required, not optional. The product exists so two people can
+                meet; without a number the provider finishes the job and has no
+                way to say so.
+              */}
+              <Field
+                label={t("auth.phone")}
+                value={phone}
+                onChangeText={setPhone}
+                placeholder="+251 91 234 5678"
+                keyboardType="phone-pad"
+                autoComplete="tel"
+                hint={t("auth.phoneHint")}
+                mono
+              />
+            </>
           ) : null}
 
           <Field
@@ -138,7 +166,11 @@ export default function SignIn() {
             }
             size="lg"
             loading={busy}
-            disabled={!email.trim() || password.length < 8}
+            disabled={
+              !email.trim() ||
+              password.length < 8 ||
+              (mode === "signup" && !PHONE_RE.test(phone.trim()))
+            }
             onPress={submitEmail}
           />
         </View>

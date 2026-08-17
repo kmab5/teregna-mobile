@@ -49,7 +49,7 @@ export default function Intro() {
     // Recorded before navigating, so a crash on the way out does not mean
     // seeing this again on every launch.
     await SecureStore.setItemAsync(INTRO_SEEN_KEY, "1").catch(() => {});
-    router.replace("/(tabs)/browse");
+    router.replace("/(customer)/browse");
   }
 
   function next() {
@@ -96,7 +96,7 @@ export default function Intro() {
             style={{ width }}
             className="flex-1 items-center justify-center px-9"
           >
-            <View className="h-24 w-24 items-center justify-center rounded-full bg-primary/[0.10] dark:bg-d-primary/20">
+            <View className="h-24 w-24 items-center justify-center rounded-full bg-muted dark:bg-d-muted">
               <Icon size={40} color={c.primary} />
             </View>
             <Text variant="display" className="mt-8 text-center">

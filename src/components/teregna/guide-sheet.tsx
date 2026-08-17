@@ -90,7 +90,7 @@ function Row({
 }) {
   return (
     <View className="flex-row gap-3">
-      <View className="mt-0.5 h-8 w-8 items-center justify-center rounded-full bg-primary/[0.10] dark:bg-d-primary/20">
+      <View className="mt-0.5 h-8 w-8 items-center justify-center rounded-full bg-muted dark:bg-d-muted">
         {icon}
       </View>
       <View className="flex-1">

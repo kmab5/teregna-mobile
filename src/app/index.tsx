@@ -33,5 +33,5 @@ export default function Index() {
   }, []);
 
   if (!ready || seenIntro === null) return null;
-  return <Redirect href={seenIntro ? "/(tabs)/browse" : "/intro"} />;
+  return <Redirect href={seenIntro ? "/(customer)/browse" : "/intro"} />;
 }

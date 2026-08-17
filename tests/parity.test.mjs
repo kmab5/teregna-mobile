@@ -242,6 +242,14 @@ check("screen-level gutters are at least 20px", () => {
   );
 });
 
+/*
+ * @react-navigation/* is a hard build error against expo-router as of SDK 56 -
+ * expo-router vendors its own copy. Importing the public package fails the
+ * bundle with a message about migration, which does not obviously point at the
+ * import that caused it.
+ */
+const FORBIDDEN_PACKAGES = ["@react-navigation/"];
+
 check("Expo Go-hostile modules are never statically imported", () => {
   /*
    * `expo-notifications` throws AT IMPORT TIME in Expo Go on Android - remote
@@ -274,6 +282,25 @@ check("Expo Go-hostile modules are never statically imported", () => {
   );
 });
 
+check("no direct @react-navigation imports", () => {
+  const bad = [];
+  for (const { path, src } of files) {
+    const code = src
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/(^|[^:])\/\/.*$/gm, "$1");
+    for (const pkg of FORBIDDEN_PACKAGES) {
+      if (code.includes(`"${pkg}`) || code.includes(`'${pkg}`)) {
+        bad.push(`${path.replace(SRC, "")}: ${pkg}`);
+      }
+    }
+  }
+  assert.deepEqual(
+    bad,
+    [],
+    `incompatible with expo-router since SDK 56: ${bad.join(", ")}`,
+  );
+});
+
 check("navigation uses router.push, not <Link asChild>", () => {
   /*
    * `asChild` injects onPress by cloning the child element. With
@@ -299,6 +326,29 @@ check("navigation uses router.push, not <Link asChild>", () => {
     [],
     `Link asChild can silently lose its handler: ${bad.join(", ")}`,
   );
+});
+
+check("no arbitrary-opacity background classes", () => {
+  /*
+   * `bg-primary/[0.14]` reads like it composites over the surface, but
+   * NativeWind does not reliably emit arbitrary-opacity backgrounds. When it
+   * does not, the background stays FULLY OPAQUE - which is how the queue pill
+   * ended up at 1.47:1: light lavender text on solid lavender.
+   *
+   * Contrast then depends on whether a class compiled, which is not something
+   * you can reason about from the source. Solid colours from theme/colors.ts
+   * cannot fail that way.
+   */
+  const bad = [];
+  for (const { path, src } of files) {
+    const code = src
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/(^|[^:])\/\/.*$/gm, "$1");
+    for (const m of code.matchAll(/\b(bg|text|border)-[a-z0-9-]+\/\[[0-9.]+\]/g)) {
+      bad.push(`${path.replace(SRC, "")}: ${m[0]}`);
+    }
+  }
+  assert.deepEqual(bad, [], `unreliable opacity class: ${bad.join(", ")}`);
 });
 
 console.log(`\n  ${pass} parity checks passed`);

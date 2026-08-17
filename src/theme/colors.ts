@@ -21,10 +21,20 @@ export interface ThemeColors {
   surface: string;
   border: string;
   onPrimary: string;
-  /** Text inside a primary-tinted pill. */
+  /**
+   * Pills use SOLID background/foreground pairs, never an alpha class.
+   *
+   * `bg-primary/[0.14]` looks like it composites, but NativeWind does not always
+   * emit arbitrary-opacity backgrounds - and when it does not, the background
+   * stays fully opaque. That is how the dark pill ended up at 1.47:1: light
+   * lavender text on solid lavender. Solid pairs cannot fail that way.
+   */
+  pillPrimaryBg: string;
   pillPrimaryText: string;
-  /** Text inside an accent-tinted pill. */
+  pillAccentBg: string;
   pillAccentText: string;
+  /** Soft surface behind icons and callouts. */
+  softBg: string;
 }
 
 const LIGHT: ThemeColors = {
@@ -37,8 +47,11 @@ const LIGHT: ThemeColors = {
   surface: "#FFFFFF",
   border: "#E6DEF7",
   onPrimary: "#FFFFFF",
-  pillPrimaryText: "#5B21B6", // 7.1:1 on the tinted pill
-  pillAccentText: "#14532D", // 7.5:1
+  pillPrimaryBg: "#EDE9FE",
+  pillPrimaryText: "#4C1D95", // 9.2:1
+  pillAccentBg: "#DCFCE7",
+  pillAccentText: "#14532D", // 8.3:1
+  softBg: "#F0ECF9",
 };
 
 const DARK: ThemeColors = {
@@ -51,8 +64,11 @@ const DARK: ThemeColors = {
   surface: "#1E1836",
   border: "#2E2650",
   onPrimary: "#1B1233",
-  pillPrimaryText: "#C4B5FD", // 6.3:1
-  pillAccentText: "#86EFAC", // 7.5:1
+  pillPrimaryBg: "#4C1D95",
+  pillPrimaryText: "#EDE9FE", // 9.2:1
+  pillAccentBg: "#14532D",
+  pillAccentText: "#DCFCE7", // 8.3:1
+  softBg: "#262046",
 };
 
 export function useThemeColors(): ThemeColors {

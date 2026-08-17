@@ -17,7 +17,6 @@ import {
 import { NotoSansEthiopic_400Regular } from "@expo-google-fonts/noto-sans-ethiopic";
 import { AuthProvider } from "@/lib/auth";
 import { ToastProvider } from "@/components/ui/toast";
-import { OfflineBanner } from "@/components/teregna/offline-banner";
 import { configureAndroidChannel } from "@/lib/push";
 import { I18nProvider, useLocale } from "@/i18n/provider";
 import { ThemeProvider } from "@/theme/provider";
@@ -79,16 +78,18 @@ export default function RootLayout() {
               <ToastProvider>
               <Gate>
                 <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-                <OfflineBanner />
                 <Stack screenOptions={{ headerShown: false }}>
                   {/* Names must match the files under src/app exactly.
                       expo-router warns rather than errors on a mismatch, so a
                       stale name here is silent apart from a console line. */}
                   <Stack.Screen name="index" />
                   <Stack.Screen name="intro" options={{ gestureEnabled: false }} />
-                  <Stack.Screen name="(tabs)" />
+                  <Stack.Screen name="(customer)" />
+                  <Stack.Screen name="(business)" />
                   <Stack.Screen name="(auth)" />
                   <Stack.Screen name="p/[id]" />
+                  <Stack.Screen name="order/[id]" />
+                  <Stack.Screen name="history" />
                 </Stack>
               </Gate>
               </ToastProvider>
