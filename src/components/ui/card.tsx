@@ -1,14 +1,13 @@
 import { View, type ViewProps } from "react-native";
+import { useThemeColors } from "@/theme/colors";
 import { cn } from "@/lib/cn";
 
-export function Card({ className, ...props }: ViewProps) {
+export function Card({ className, style, ...props }: ViewProps) {
+  const c = useThemeColors();
   return (
     <View
-      className={cn(
-        "rounded-md border border-border bg-surface p-4",
-        "dark:border-d-border dark:bg-d-surface",
-        className,
-      )}
+      className={cn("rounded-md border p-4", className)}
+      style={[{ backgroundColor: c.surface, borderColor: c.border }, style]}
       {...props}
     />
   );

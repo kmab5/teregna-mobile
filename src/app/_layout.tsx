@@ -17,6 +17,7 @@ import {
 import { NotoSansEthiopic_400Regular } from "@expo-google-fonts/noto-sans-ethiopic";
 import { AuthProvider } from "@/lib/auth";
 import { ToastProvider } from "@/components/ui/toast";
+import { DrawerProvider } from "@/components/nav/drawer";
 import { configureAndroidChannel } from "@/lib/push";
 import { I18nProvider, useLocale } from "@/i18n/provider";
 import { ThemeProvider } from "@/theme/provider";
@@ -77,8 +78,20 @@ export default function RootLayout() {
             <AuthProvider>
               <ToastProvider>
               <Gate>
+                <DrawerProvider>
                 <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-                <Stack screenOptions={{ headerShown: false }}>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    // A slide reads as "further in", which matches what these
+                    // routes are: a provider, an order, the guide. The default
+                    // cut gave no sense of depth and made Back feel arbitrary.
+                    animation: "slide_from_right",
+                    animationDuration: 220,
+                    gestureEnabled: true,
+                    contentStyle: { backgroundColor: "transparent" },
+                  }}
+                >
                   {/* Names must match the files under src/app exactly.
                       expo-router warns rather than errors on a mismatch, so a
                       stale name here is silent apart from a console line. */}
@@ -89,8 +102,10 @@ export default function RootLayout() {
                   <Stack.Screen name="(auth)" />
                   <Stack.Screen name="p/[id]" />
                   <Stack.Screen name="order/[id]" />
-                  <Stack.Screen name="history" />
+                  <Stack.Screen name="settings" />
+                  <Stack.Screen name="guide" />
                 </Stack>
+                </DrawerProvider>
               </Gate>
               </ToastProvider>
             </AuthProvider>

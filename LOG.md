@@ -238,7 +238,23 @@ logs, which is close to the worst possible failure to diagnose. The object form
 `push({ pathname: "/p/[id]", params: { id } })` is also the one typed routes
 actually check: a template literal is just `string` to them.
 
-**Colours that cannot be class names live in `theme/colors.ts`.** Icons, charts
+**The drawer is one instance around the whole tree, not per-mode.** Declaring it
+inside each tab layout would mean two copies to keep in step, and the mode switch
+inside it would unmount itself mid-navigation.
+
+**All colour comes from `theme/colors.ts`. None comes from a class.**
+
+The app previously had two independent mechanisms deciding what "dark" meant -
+NativeWind’s `dark:` variant and this object - and they had to agree on all 199
+occurrences. When they disagreed the result was dark-mode text on light-mode
+backgrounds, reported three separate times as "the contrast is ruined" and "the
+background is too bright". Patching individual components never fixed it because
+the architecture guaranteed it would recur somewhere else.
+
+There is one mechanism now: NativeWind handles LAYOUT (flex, spacing, radius,
+size), and every colour is an inline style from the resolved theme. A parity
+check fails the build on any colour class. Every foreground/background pair in
+both schemes is measured, and all clear 4.5:1. Icons, charts
 and anything taking a `color` prop cannot use NativeWind’s `dark:` variant, so a
 hardcoded hex silently stays on one theme’s value while the background inverts.
 That produced a 1.70:1 pill in dark mode.
@@ -296,6 +312,48 @@ interaction review needs a human with an Android phone running `npx expo start`.
 ---
 
 ## Session history
+
+### Session 14 — drawer and central settings
+
+Account and Settings were two screens doing the same job, and both were tabs -
+so the same person edited their name in one place and their phone in another
+depending on which mode they happened to be in, while configuration competed for
+bar space with the queue.
+
+- **One drawer**, wrapping the whole tree. Identity, which side of the product
+  you are on, settings, order history, guide, sign out.
+- **One `/settings` route** for both modes. The business section appears for
+  people who have a business, rather than living on a separate screen.
+- **The mode switch moved into the drawer.** It changes the entire app, which is
+  a heavier decision than a bar button implies, and it sat awkwardly beside the
+  business name it was about to replace.
+- **Bottom bars are working surfaces only.** Customer: Browse, Requests,
+  History. Business: Queue, Archive, Items, Analytics.
+
+Built on Reanimated rather than a Drawer navigator: the two sides have different
+tab sets, so a navigator-level drawer would have to be declared twice and kept in
+step. Wrapping once means both modes get the identical panel, and the switch
+inside it can move between them without unmounting itself.
+
+### Session 13 — theming overhaul
+
+"Go over everything once" was the right instruction: three of the six reported
+problems were one architectural fault, not three bugs.
+
+- **199 `dark:` colour classes removed.** Colour now has exactly one source.
+  Dark backgrounds are genuinely dark (`#100D1C` rather than a washed `#141024`),
+  and every pairing is measured rather than eyeballed.
+- **Cancel is an icon button.** The labelled one overflowed the card.
+- **Page transitions** slide rather than cut, so Back has a direction.
+- **Push status panel** in both settings screens. "Notifications aren’t firing"
+  has at least four causes - Expo Go, no EAS project id, permission denied, no
+  token stored - and none announce themselves. The app now names which one
+  applies, and `private.push_diagnosis()` answers the same from the server.
+
+Worth recording: the sweep initially placed `useThemeColors()` inside nested
+functions and type literals, which ESLint caught as a rules-of-hooks violation
+before it could reach a device. Mechanical refactors need the linter as much as
+hand-written code does.
 
 ### Session 12 — web parity
 

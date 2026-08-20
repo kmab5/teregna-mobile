@@ -21,10 +21,10 @@ import { cn } from "@/lib/cn";
 import type { ItemView, ProviderPublic } from "@/lib/database.types";
 
 export default function ProviderScreen() {
+  const c = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const t = useT();
   const { locale } = useLocale();
-  const c = useThemeColors();
   const fmt = makeFormat(locale);
   const router = useRouter();
   const qc = useQueryClient();
@@ -132,9 +132,9 @@ export default function ProviderScreen() {
    */
   if (isPending || isError || !provider) {
     return (
-      <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
+      <SafeAreaView edges={["top"]} className="flex-1">
         <Stack.Screen options={{ headerShown: false }} />
-        <View className="h-12 flex-row items-center border-b border-border px-2 dark:border-d-border">
+        <View className="h-12 flex-row items-center border-b px-2">
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t("common.back")}
@@ -170,15 +170,15 @@ export default function ProviderScreen() {
 
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
+    <SafeAreaView edges={["top"]} className="flex-1">
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View className="h-12 flex-row items-center gap-1 border-b border-border px-2 dark:border-d-border">
+      <View className="h-12 flex-row items-center gap-1 border-b px-2">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t("common.back")}
           onPress={() => router.back()}
-          className="h-11 w-11 items-center justify-center rounded-full active:bg-muted dark:active:bg-d-muted"
+          className="h-11 w-11 items-center justify-center rounded-full active: dark:active:"
         >
           <ChevronLeft size={22} color={c.primary} />
         </Pressable>
@@ -194,8 +194,8 @@ export default function ProviderScreen() {
 
         <View className="mt-2 flex-row items-center gap-3">
           {provider.category ? (
-            <View className="rounded-full bg-muted px-2 py-0.5 dark:bg-d-muted">
-              <Text className="text-[11px] capitalize text-ink-muted dark:text-d-ink-muted">
+            <View className="rounded-full px-2 py-0.5">
+              <Text className="text-[11px] capitalize">
                 {provider.category}
               </Text>
             </View>
@@ -233,8 +233,8 @@ export default function ProviderScreen() {
                     className={cn(
                       "flex-row items-center gap-3 rounded-sm border p-3",
                       isSel
-                        ? "border-primary bg-primary/5 dark:border-d-primary dark:bg-d-primary/10"
-                        : "border-border bg-surface dark:border-d-border dark:bg-d-surface",
+                        ? ""
+                        : "",
                     )}
                   >
                     {/* A drawn icon, not a text glyph: "✓" carries its own line
@@ -244,8 +244,8 @@ export default function ProviderScreen() {
                       className={cn(
                         "h-6 w-6 items-center justify-center rounded-sm border-2",
                         isSel
-                          ? "border-primary bg-primary dark:border-d-primary dark:bg-d-primary"
-                          : "border-border dark:border-d-border",
+                          ? ""
+                          : "",
                       )}
                     >
                       {isSel ? <Check size={15} color={c.onPrimary} strokeWidth={3} /> : null}
@@ -262,12 +262,12 @@ export default function ProviderScreen() {
                         item.is_depleted ? (
                           <View className="mt-1 flex-row items-center gap-1">
                             <PackageX size={12} color={c.warning} />
-                            <Text className="text-[11px] font-medium text-warning dark:text-d-warning">
+                            <Text className="text-[11px] font-medium">
                               {t("stock.depleted")}
                             </Text>
                           </View>
                         ) : (
-                          <Text className="mt-1 font-mono text-[11px] text-ink-muted dark:text-d-ink-muted">
+                          <Text className="mt-1 font-mono text-[11px]">
                             {t.plural("stock.left", item.available ?? 0)}
                           </Text>
                         )
@@ -281,7 +281,7 @@ export default function ProviderScreen() {
                           onPress={() =>
                             setSelected((p) => ({ ...p, [item.id]: Math.max(1, qty - 1) }))
                           }
-                          className="h-9 w-9 items-center justify-center rounded-sm border border-border dark:border-d-border"
+                          className="h-9 w-9 items-center justify-center rounded-sm border"
                         >
                           <Text>−</Text>
                         </Pressable>
@@ -291,7 +291,7 @@ export default function ProviderScreen() {
                           onPress={() =>
                             setSelected((p) => ({ ...p, [item.id]: Math.min(99, qty + 1) }))
                           }
-                          className="h-9 w-9 items-center justify-center rounded-sm border border-border dark:border-d-border"
+                          className="h-9 w-9 items-center justify-center rounded-sm border"
                         >
                           <Text>+</Text>
                         </Pressable>
@@ -320,16 +320,16 @@ export default function ProviderScreen() {
             maxLength={500}
             multiline
             placeholder={t("send.notePlaceholder")}
-            placeholderTextColor="#5B517A"
-            className="min-h-20 rounded-sm border border-border bg-surface p-3 font-sans text-[16px] text-ink dark:border-d-border dark:bg-d-surface dark:text-d-ink"
+            placeholderTextColor={c.inkMuted}
+            className="min-h-20 rounded-sm border p-3 font-sans text-[16px]"
           />
         </View>
 
         {depleted.length > 0 ? (
-          <View className="mt-4 flex-row gap-2.5 rounded-sm bg-warning/10 p-3 dark:bg-d-warning/15">
+          <View className="mt-4 flex-row gap-2.5 rounded-sm p-3">
             <PackageX size={16} color={c.warning} />
             <View className="flex-1">
-              <Text className="text-[14px] font-medium text-warning dark:text-d-warning">
+              <Text className="text-[14px] font-medium">
                 {t("stock.warnTitle")}
               </Text>
               <Text variant="small" className="mt-0.5">
@@ -343,7 +343,7 @@ export default function ProviderScreen() {
         ) : null}
 
         {total > 0 ? (
-          <View className="mt-4 flex-row items-center justify-between rounded-sm bg-muted px-3 py-2.5 dark:bg-d-muted">
+          <View className="mt-4 flex-row items-center justify-between rounded-sm px-3 py-2.5">
             <Text variant="small">{t("send.estimated")}</Text>
             <Text className="font-mono-bold text-[15px]">{fmt.money(total)}</Text>
           </View>
@@ -351,7 +351,7 @@ export default function ProviderScreen() {
       </ScrollView>
 
       {/* Anchored so the primary action is always under the thumb. */}
-      <View className="border-t border-border bg-bg px-5 pb-4 pt-3 dark:border-d-border dark:bg-d-bg">
+      <View className="border-t px-5 pb-4 pt-3">
         <Button
           size="lg"
           title={

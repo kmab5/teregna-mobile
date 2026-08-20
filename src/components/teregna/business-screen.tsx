@@ -8,6 +8,7 @@ import { useMyProvider } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
 import { useT } from "@/i18n/provider";
 import type { Provider } from "@/lib/database.types";
+import { useThemeColors } from "@/theme/colors";
 
 /**
  * Shell for every provider screen.
@@ -20,6 +21,7 @@ export function BusinessScreen({
 }: {
   children: (provider: Provider) => React.ReactNode;
 }) {
+  const c = useThemeColors();
   const t = useT();
   const router = useRouter();
   const { user } = useAuth();
@@ -27,7 +29,7 @@ export function BusinessScreen({
 
   if (!user) {
     return (
-      <View className="flex-1 justify-center bg-bg px-5 dark:bg-d-bg">
+      <View className="flex-1 justify-center px-5">
           <Card>
             <Text variant="title">{t("auth.provTitle")}</Text>
             <Text variant="small" className="mt-1">
@@ -45,15 +47,15 @@ export function BusinessScreen({
 
   if (isPending) {
     return (
-      <View className="flex-1 bg-bg dark:bg-d-bg" />
+      <View className="flex-1" />
     );
   }
 
   if (!provider) {
     return (
-      <View className="flex-1 justify-center bg-bg px-5 dark:bg-d-bg">
+      <View className="flex-1 justify-center px-5">
           <Card className="items-center py-10">
-            <Store size={28} color="#5B517A" />
+            <Store size={28} color={c.inkMuted} />
             <Text variant="title" className="mt-3 text-center">
               {t("ob.bTitle")}
             </Text>

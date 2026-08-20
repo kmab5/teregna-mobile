@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import {
   Archive,
   Compass,
@@ -30,16 +30,45 @@ const PROVIDER = [
 /**
  * The guide.
  *
- * Kept in a sheet rather than a screen so it can be opened from anywhere and
- * dismissed with a swipe. It covers both sides of the product, because everyone
- * has one account and a customer can become a provider without signing up again.
+ * Covers both sides of the product, because everyone has one account and a
+ * customer can become a provider without signing up again - someone reading this
+ * may not yet know the second half applies to them.
  */
-export function GuideSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function GuideSheet({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const t = useT();
+  return (
+    <Sheet open={open} onClose={onClose} title={t("guide.title")}>
+      <Sections />
+      <View className="h-2" />
+    </Sheet>
+  );
+}
+
+/** The same content as a scrollable page, for the drawer route. */
+export function GuideBody() {
+  return (
+    <ScrollView
+      className="flex-1 px-5"
+      contentContainerClassName="py-4 gap-4"
+      showsVerticalScrollIndicator={false}
+    >
+      <Sections />
+    </ScrollView>
+  );
+}
+
+function Sections() {
   const t = useT();
   const c = useThemeColors();
 
   return (
-    <Sheet open={open} onClose={onClose} title={t("guide.title")}>
+    <>
       <Section label={t("guide.customer")} />
       {CUSTOMER.map(({ icon: Icon, titleKey, bodyKey }) => (
         <Row
@@ -66,14 +95,13 @@ export function GuideSheet({ open, onClose }: { open: boolean; onClose: () => vo
         title={t("guide.stock")}
         body={t("guide.stockBody")}
       />
-      <View className="h-2" />
-    </Sheet>
+    </>
   );
 }
 
 function Section({ label }: { label: string }) {
   return (
-    <Text className="mt-2 text-[11px] font-medium uppercase tracking-wide text-ink-muted dark:text-d-ink-muted">
+    <Text variant="label" className="mt-2">
       {label}
     </Text>
   );
@@ -88,13 +116,17 @@ function Row({
   title: string;
   body: string;
 }) {
+  const c = useThemeColors();
   return (
     <View className="flex-row gap-3">
-      <View className="mt-0.5 h-8 w-8 items-center justify-center rounded-full bg-muted dark:bg-d-muted">
+      <View
+        className="mt-0.5 h-8 w-8 items-center justify-center rounded-full"
+        style={{ backgroundColor: c.softBg }}
+      >
         {icon}
       </View>
       <View className="flex-1">
-        <Text className="font-medium text-[15px]">{title}</Text>
+        <Text className="text-[15px] font-medium">{title}</Text>
         <Text variant="small" className="mt-0.5">
           {body}
         </Text>

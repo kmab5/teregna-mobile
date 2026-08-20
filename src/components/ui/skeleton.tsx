@@ -24,7 +24,7 @@ export function Skeleton({ className }: { className?: string }) {
 
   return (
     <Animated.View style={{ opacity: pulse }}>
-      <View className={cn("rounded-sm bg-muted dark:bg-d-muted", className)} />
+      <View className={cn("rounded-sm", className)} />
     </Animated.View>
   );
 }

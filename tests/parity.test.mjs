@@ -328,6 +328,39 @@ check("navigation uses router.push, not <Link asChild>", () => {
   );
 });
 
+check("colour never comes from a class", () => {
+  /*
+   * The app had TWO mechanisms deciding what "dark" meant - NativeWind's `dark:`
+   * variant and theme/colors.ts - and they had to agree on all 199 occurrences.
+   * When they disagreed the result was dark-mode text on light-mode backgrounds,
+   * reported three separate times as "contrast is ruined" and "the background is
+   * too bright".
+   *
+   * There is one mechanism now. NativeWind handles LAYOUT; every colour is an
+   * inline style from the theme. This check stops the second one growing back.
+   */
+  const TOKENS =
+    "bg|surface|surface-2|ink|ink-muted|primary|on-primary|accent|on-accent|" +
+    "border|muted|warning|destructive|chrome|on-chrome|on-chrome-muted|" +
+    "chrome-border|d-[a-z-]+";
+  const pattern = new RegExp(`\\b(?:dark:)?(?:bg|text|border)-(?:${TOKENS})\\b`, "g");
+
+  const bad = [];
+  for (const { path, src } of files) {
+    const code = src
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/(^|[^:])\/\/.*$/gm, "$1");
+    for (const m of code.matchAll(pattern)) {
+      bad.push(`${path.replace(SRC, "")}: ${m[0]}`);
+    }
+  }
+  assert.deepEqual(
+    bad.slice(0, 6),
+    [],
+    `${bad.length} colour class(es) - use useThemeColors() instead`,
+  );
+});
+
 check("no arbitrary-opacity background classes", () => {
   /*
    * `bg-primary/[0.14]` reads like it composites over the surface, but

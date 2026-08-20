@@ -51,7 +51,7 @@ export function BottomBar({
 
   return (
     <View
-      className="flex-row border-t border-border bg-surface dark:border-d-border dark:bg-d-surface"
+      className="flex-row border-t"
       style={{ paddingBottom: Math.max(insets.bottom, 8), paddingTop: 8 }}
     >
       {state.routes.map((route, index) => {
@@ -137,8 +137,8 @@ function TabButton({
         className={cn(
           "mt-0.5 text-[11px]",
           focused
-            ? "font-medium text-primary dark:text-d-primary"
-            : "text-ink-muted dark:text-d-ink-muted",
+            ? "font-medium"
+            : "",
         )}
       >
         {label}

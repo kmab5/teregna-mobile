@@ -2,6 +2,7 @@ import { Modal, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { X } from "lucide-react-native";
 import { Text } from "./text";
+import { useThemeColors } from "@/theme/colors";
 
 /**
  * Bottom sheet.
@@ -23,6 +24,7 @@ export function Sheet({
   description?: string;
   children: React.ReactNode;
 }) {
+  const c = useThemeColors();
   const insets = useSafeAreaInsets();
 
   return (
@@ -41,7 +43,7 @@ export function Sheet({
         className="flex-1 bg-black/40"
       />
       <View
-        className="rounded-t-lg border-t border-border bg-surface dark:border-d-border dark:bg-d-surface"
+        className="rounded-t-lg border-t"
         style={{ paddingBottom: insets.bottom + 16, maxHeight: "88%" }}
       >
         <View className="flex-row items-start justify-between gap-3 px-5 pb-2 pt-5">
@@ -57,9 +59,9 @@ export function Sheet({
             accessibilityRole="button"
             onPress={onClose}
             hitSlop={8}
-            className="h-11 w-11 items-center justify-center rounded-full active:bg-muted dark:active:bg-d-muted"
+            className="h-11 w-11 items-center justify-center rounded-full active: dark:active:"
           >
-            <X size={18} color="#5B517A" />
+            <X size={18} color={c.inkMuted} />
           </Pressable>
         </View>
         <ScrollView

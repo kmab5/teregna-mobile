@@ -88,6 +88,21 @@ distinguishes the two failures that look identical from outside:
   route exists and the name in the root `_layout.tsx` matches (`npm test` covers
   both).
 
+## Navigation
+
+```
+drawer (whole tree)          identity · mode switch · settings · history · guide
+├── (customer)   tabs        Browse · My requests · History
+├── (business)   tabs        Queue · Archive · Items · Analytics
+├── /settings                one screen, both modes
+├── /order/[id]              full order, either side
+├── /p/[id]                  provider + send request
+└── /guide, /intro, /history
+```
+
+Bottom bars carry working surfaces only. Anything about *who you are* rather than
+*what you are doing* lives in the drawer.
+
 ## Structure
 
 ```

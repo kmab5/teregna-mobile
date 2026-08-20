@@ -20,12 +20,14 @@ import { useT } from "@/i18n/provider";
 import { elapsed } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import type { ItemView, Profile, Provider, QueueRow } from "@/lib/database.types";
+import { useThemeColors } from "@/theme/colors";
 
 export default function QueueScreen() {
   return <BusinessScreen>{(provider) => <Queue provider={provider} />}</BusinessScreen>;
 }
 
 function Queue({ provider }: { provider: Provider }) {
+  const c = useThemeColors();
   const t = useT();
   const qc = useQueryClient();
   const toast = useToast();
@@ -91,14 +93,14 @@ function Queue({ provider }: { provider: Provider }) {
       className="flex-1"
       contentContainerClassName="px-5 pb-7 gap-3 pt-4"
       refreshControl={
-        <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#6D28D9" />
+        <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={c.primary} />
       }
       ListHeaderComponent={
         <View className="gap-4">
           {remaining.length > 0 ? <SetupChecklist steps={steps} /> : null}
           <PushPrompt audience="provider" />
           <View className="flex-row items-baseline gap-2">
-            <Text className="font-mono-bold text-[30px] text-ink dark:text-d-ink">
+            <Text className="font-mono-bold text-[30px]">
               {rows.length}
             </Text>
             <Text variant="small">{t("pq.waiting")}</Text>
@@ -119,7 +121,7 @@ function Queue({ provider }: { provider: Provider }) {
       )}
       ListEmptyComponent={
         <Card className="items-center py-10">
-          <CheckCheck size={28} color="#5B517A" />
+          <CheckCheck size={28} color={c.inkMuted} />
           <Text variant="title" className="mt-3">
             {t("pq.emptyTitle")}
           </Text>
@@ -145,13 +147,14 @@ function QueueCard({
   onStart: () => void;
   onFinish: () => void;
 }) {
+  const c = useThemeColors();
   const t = useT();
   const router = useRouter();
   const wait = elapsed(row.created_at, now);
   const active = row.status === "in_progress";
 
   return (
-    <Card className={cn(pending && "opacity-50", active && "border-primary dark:border-d-primary")}>
+    <Card className={cn(pending && "opacity-50", active && "")}>
       <View className="flex-row items-start gap-3">
         <PositionBadge position={row.position} active={active} />
 
@@ -173,7 +176,7 @@ function QueueCard({
               {row.items.map((it, i) => (
                 <View
                   key={`${it.item_id ?? it.name}-${i}`}
-                  className="rounded-full bg-muted px-2.5 py-0.5 dark:bg-d-muted"
+                  className="rounded-full px-2.5 py-0.5"
                 >
                   <Text className="text-[11px]">
                     {it.quantity > 1 ? `${it.quantity}× ` : ""}
@@ -198,15 +201,15 @@ function QueueCard({
             className={cn(
               "font-mono-bold text-[20px]",
               wait.minutes >= 45
-                ? "text-destructive dark:text-d-destructive"
+                ? ""
                 : wait.minutes >= 20
-                  ? "text-warning dark:text-d-warning"
-                  : "text-ink-muted dark:text-d-ink-muted",
+                  ? ""
+                  : "",
             )}
           >
             {wait.value}
           </Text>
-          <Text className="text-[10px] uppercase text-ink-muted dark:text-d-ink-muted">
+          <Text className="text-[10px] uppercase">
             {wait.isHours
               ? t.plural("wait.hr", Math.floor(wait.minutes / 60))
               : t.plural("wait.min", wait.minutes)}
@@ -223,7 +226,7 @@ function QueueCard({
             className="flex-1"
             disabled={pending}
             onPress={onStart}
-            icon={<Play size={15} color="#6D28D9" />}
+            icon={<Play size={15} color={c.primary} />}
           />
         ) : null}
         <Button
@@ -233,7 +236,7 @@ function QueueCard({
           className="flex-1"
           disabled={pending}
           onPress={onFinish}
-          icon={<Check size={16} color="#FFFFFF" />}
+          icon={<Check size={16} color={c.onPrimary} />}
         />
       </View>
     </Card>
@@ -301,15 +304,16 @@ function setupSteps(
  * inferred from an empty queue.
  */
 function SetupChecklist({ steps }: { steps: Step[] }) {
+  const c = useThemeColors();
   const t = useT();
   const router = useRouter();
   const remaining = steps.filter((s) => !s.done);
   const next = remaining[0];
 
   return (
-    <View className="rounded-md border border-warning/40 bg-warning/10 p-4 dark:border-d-warning/40 dark:bg-d-warning/10">
+    <View className="rounded-md border p-4">
       <View className="flex-row items-start gap-2.5">
-        <CircleAlert size={18} color="#B45309" />
+        <CircleAlert size={18} color={c.warning} />
         <View className="flex-1">
           <Text variant="title" className="text-[16px]">
             {remaining.length === steps.length
@@ -327,16 +331,16 @@ function SetupChecklist({ steps }: { steps: Step[] }) {
                   className={cn(
                     "h-4 w-4 items-center justify-center rounded-full border",
                     s.done
-                      ? "border-accent bg-accent"
-                      : "border-border bg-surface dark:border-d-border dark:bg-d-surface",
+                      ? ""
+                      : "",
                   )}
                 >
-                  {s.done ? <Check size={10} color="#FFFFFF" /> : null}
+                  {s.done ? <Check size={10} color={c.onPrimary} /> : null}
                 </View>
                 <Text
                   className={cn(
                     "text-[13px]",
-                    s.done && "text-ink-muted line-through dark:text-d-ink-muted",
+                    s.done && " line-through",
                   )}
                 >
                   {s.label}

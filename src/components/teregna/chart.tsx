@@ -5,6 +5,7 @@ import { ChartLine, Table2 } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import { useT } from "@/i18n/provider";
+import { useThemeColors } from "@/theme/colors";
 
 export interface Point {
   label: string;
@@ -36,6 +37,7 @@ export function ChartCard({
   kind?: "bar" | "area";
   horizontal?: boolean;
 }) {
+  const c = useThemeColors();
   const t = useT();
   const [asTable, setAsTable] = useState(false);
   const empty = data.length === 0 || data.every((d) => d.value === 0);
@@ -57,14 +59,14 @@ export function ChartCard({
           accessibilityRole="button"
           accessibilityState={{ selected: asTable }}
           onPress={() => setAsTable((v) => !v)}
-          className="h-9 flex-row items-center gap-1.5 rounded-sm border border-border px-2.5 dark:border-d-border"
+          className="h-9 flex-row items-center gap-1.5 rounded-sm border px-2.5"
         >
           {asTable ? (
-            <ChartLine size={13} color="#5B517A" />
+            <ChartLine size={13} color={c.inkMuted} />
           ) : (
-            <Table2 size={13} color="#5B517A" />
+            <Table2 size={13} color={c.inkMuted} />
           )}
-          <Text className="text-[12px] font-medium text-ink-muted dark:text-d-ink-muted">
+          <Text className="text-[12px] font-medium">
             {asTable ? t("chart.chart") : t("chart.table")}
           </Text>
         </Pressable>
@@ -104,17 +106,17 @@ function DataTable({
 }) {
   return (
     <ScrollView className="max-h-64" nestedScrollEnabled>
-      <View className="flex-row border-b border-border pb-2 dark:border-d-border">
+      <View className="flex-row border-b pb-2">
         <Text className="flex-1 text-[13px] font-medium">{firstCol}</Text>
         <Text className="text-[13px] font-medium">{valueCol}</Text>
       </View>
       {data.map((d) => (
         <View
           key={d.label}
-          className="flex-row border-b border-border/60 py-2 dark:border-d-border/60"
+          className="flex-row border-b py-2"
         >
           <Text className="flex-1 text-[13px]">{d.label}</Text>
-          <Text variant="mono" className="text-[13px] text-ink dark:text-d-ink">
+          <Text variant="mono" className="text-[13px]">
             {d.value}
           </Text>
         </View>
@@ -126,6 +128,7 @@ function DataTable({
 const H = 150;
 
 function VerticalBars({ data }: { data: Point[] }) {
+  const c = useThemeColors();
   const max = Math.max(...data.map((d) => d.value), 1);
   // Show at most ~24 columns; beyond that the bars are thinner than a finger
   // and the chart says nothing the table does not say better.
@@ -144,7 +147,7 @@ function VerticalBars({ data }: { data: Point[] }) {
               y={H - h}
               width={w * 0.7}
               height={h}
-              fill="#6D28D9"
+              fill={c.primary}
               rx={1}
             />
           );
@@ -163,6 +166,7 @@ function VerticalBars({ data }: { data: Point[] }) {
 }
 
 function AreaChart({ data }: { data: Point[] }) {
+  const c = useThemeColors();
   const max = Math.max(...data.map((d) => d.value), 1);
   const shown = data.length > 60 ? data.slice(-60) : data;
   const step = shown.length > 1 ? 100 / (shown.length - 1) : 100;
@@ -179,8 +183,8 @@ function AreaChart({ data }: { data: Point[] }) {
   return (
     <View>
       <Svg width="100%" height={H} viewBox={`0 0 100 ${H}`} preserveAspectRatio="none">
-        <Path d={fill} fill="#6D28D9" fillOpacity={0.14} />
-        <Path d={line} stroke="#6D28D9" strokeWidth={1.5} fill="none" />
+        <Path d={fill} fill={c.primary} fillOpacity={0.14} />
+        <Path d={line} stroke={c.primary} strokeWidth={1.5} fill="none" />
       </Svg>
       <View className="mt-1.5 flex-row justify-between">
         <Text variant="mono" className="text-[10px]">
@@ -205,13 +209,13 @@ function HorizontalBars({ data }: { data: Point[] }) {
             <Text className="flex-1 text-[13px]" numberOfLines={1}>
               {d.label}
             </Text>
-            <Text variant="mono" className="text-[13px] text-ink dark:text-d-ink">
+            <Text variant="mono" className="text-[13px]">
               {d.value}
             </Text>
           </View>
-          <View className="h-2 overflow-hidden rounded-full bg-muted dark:bg-d-muted">
+          <View className="h-2 overflow-hidden rounded-full">
             <View
-              className="h-2 rounded-full bg-primary dark:bg-d-primary"
+              className="h-2 rounded-full"
               style={{ width: `${Math.max((d.value / max) * 100, 2)}%` }}
             />
           </View>
@@ -231,11 +235,11 @@ export function StatCard({
   hint?: string;
 }) {
   return (
-    <View className="min-w-[46%] flex-1 rounded-md border border-border bg-surface p-3.5 dark:border-d-border dark:bg-d-surface">
-      <Text className="text-[11px] uppercase tracking-wide text-ink-muted dark:text-d-ink-muted">
+    <View className="min-w-[46%] flex-1 rounded-md border p-3.5">
+      <Text className="text-[11px] uppercase tracking-wide">
         {label}
       </Text>
-      <Text className="mt-1 font-mono-bold text-[26px] text-ink dark:text-d-ink">
+      <Text className="mt-1 font-mono-bold text-[26px]">
         {value}
       </Text>
       {hint ? (

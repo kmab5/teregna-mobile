@@ -27,12 +27,14 @@ import { useT, useLocale } from "@/i18n/provider";
 import { makeFormat } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import type { ItemView, Provider } from "@/lib/database.types";
+import { useThemeColors } from "@/theme/colors";
 
 export default function ItemsScreen() {
   return <BusinessScreen>{(p) => <Items provider={p} />}</BusinessScreen>;
 }
 
 function Items({ provider }: { provider: Provider }) {
+  const c = useThemeColors();
   const t = useT();
   const { locale } = useLocale();
   const fmt = makeFormat(locale);
@@ -110,7 +112,7 @@ function Items({ provider }: { provider: Provider }) {
                 setEditing(null);
                 setSheetOpen(true);
               }}
-              icon={<Plus size={17} color="#FFFFFF" />}
+              icon={<Plus size={17} color={c.onPrimary} />}
             />
             {items.length > 0 ? (
               <Text variant="small">{t("it.orderNote")}</Text>
@@ -129,7 +131,7 @@ function Items({ provider }: { provider: Provider }) {
                   hitSlop={4}
                   className={cn("px-1 py-0.5", index === 0 && "opacity-30")}
                 >
-                  <ChevronUp size={17} color="#5B517A" />
+                  <ChevronUp size={17} color={c.inkMuted} />
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
@@ -142,7 +144,7 @@ function Items({ provider }: { provider: Provider }) {
                     index === items.length - 1 && "opacity-30",
                   )}
                 >
-                  <ChevronDown size={17} color="#5B517A" />
+                  <ChevronDown size={17} color={c.inkMuted} />
                 </Pressable>
               </View>
 
@@ -174,13 +176,13 @@ function Items({ provider }: { provider: Provider }) {
                 {item.stock !== null ? (
                   item.is_depleted ? (
                     <View className="mt-0.5 flex-row items-center gap-1">
-                      <PackageX size={11} color="#B45309" />
-                      <Text className="text-[11px] text-warning dark:text-d-warning">
+                      <PackageX size={11} color={c.warning} />
+                      <Text className="text-[11px]">
                         {t("stock.depleted")}
                       </Text>
                     </View>
                   ) : (
-                    <Text className="mt-0.5 font-mono text-[11px] text-ink-muted dark:text-d-ink-muted">
+                    <Text className="mt-0.5 font-mono text-[11px]">
                       {t.plural("stock.left", item.available ?? 0)}
                     </Text>
                   )
@@ -188,7 +190,7 @@ function Items({ provider }: { provider: Provider }) {
               </View>
             </View>
 
-            <View className="flex-row items-center gap-3 border-t border-border pt-2.5 dark:border-d-border">
+            <View className="flex-row items-center gap-3 border-t pt-2.5">
               <Switch
                 value={item.is_visible}
                 onValueChange={(v) => toggle.mutate({ id: item.id, visible: v })}
@@ -197,13 +199,13 @@ function Items({ provider }: { provider: Provider }) {
                     ? t("it.hideAria", { name: item.name })
                     : t("it.showAria", { name: item.name })
                 }
-                trackColor={{ true: "#15803D", false: "#E6DEF7" }}
-                thumbColor="#FFFFFF"
+                trackColor={{ true: c.accent, false: c.border }}
+                thumbColor={c.onPrimary}
               />
               {item.is_visible ? (
-                <Eye size={15} color="#15803D" />
+                <Eye size={15} color={c.accent} />
               ) : (
-                <EyeOff size={15} color="#5B517A" />
+                <EyeOff size={15} color={c.inkMuted} />
               )}
 
               <View className="flex-1" />
@@ -218,7 +220,7 @@ function Items({ provider }: { provider: Provider }) {
                 hitSlop={6}
                 className="h-11 w-11 items-center justify-center rounded-sm"
               >
-                <Pencil size={16} color="#6D28D9" />
+                <Pencil size={16} color={c.primary} />
               </Pressable>
               <Pressable
                 accessibilityRole="button"
@@ -227,14 +229,14 @@ function Items({ provider }: { provider: Provider }) {
                 hitSlop={6}
                 className="h-11 w-11 items-center justify-center rounded-sm"
               >
-                <Trash2 size={16} color="#B91C1C" />
+                <Trash2 size={16} color={c.destructive} />
               </Pressable>
             </View>
           </Card>
         )}
         ListEmptyComponent={
           <Card className="items-center py-10">
-            <Package size={28} color="#5B517A" />
+            <Package size={28} color={c.inkMuted} />
             <Text variant="title" className="mt-3">
               {t("it.emptyTitle")}
             </Text>
@@ -296,6 +298,7 @@ function ItemSheet({
   providerId: string;
   onSaved: () => void;
 }) {
+  const c = useThemeColors();
   const t = useT();
   const toast = useToast();
 
@@ -386,7 +389,7 @@ function ItemSheet({
         className="h-20 py-3"
       />
 
-      <View className="flex-row items-center justify-between rounded-sm border border-border p-3 dark:border-d-border">
+      <View className="flex-row items-center justify-between rounded-sm border p-3">
         <View className="flex-1 pr-3">
           <Text className="font-medium text-[14px]">{t("it.visible")}</Text>
           <Text variant="small">{t("it.visibleHint")}</Text>
@@ -394,8 +397,8 @@ function ItemSheet({
         <Switch
           value={visible}
           onValueChange={setVisible}
-          trackColor={{ true: "#15803D", false: "#E6DEF7" }}
-          thumbColor="#FFFFFF"
+          trackColor={{ true: c.accent, false: c.border }}
+          thumbColor={c.onPrimary}
         />
       </View>
 

@@ -31,7 +31,7 @@ export function TopBar({
         "h-12 flex-row items-center gap-2.5 border-b px-5",
         // Same background as the safe-area strip above it. A different surface
         // colour here draws a visible seam right under the status bar.
-        "border-border bg-bg dark:border-d-border dark:bg-d-bg",
+        "",
         className,
       )}
     >

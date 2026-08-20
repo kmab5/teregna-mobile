@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Archive, ChartColumn, ListOrdered, Package, Settings } from "lucide-react-native";
+import { Archive, ChartColumn, ListOrdered, Package } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BottomBar, type TabMeta } from "@/components/nav/bottom-bar";
 import { Swipeable } from "@/components/nav/swipeable";
@@ -12,10 +12,9 @@ const TABS: TabMeta[] = [
   { name: "archive", labelKey: "arc.title", icon: Archive },
   { name: "items", labelKey: "it.title", icon: Package },
   { name: "analytics", labelKey: "an.title", icon: ChartColumn },
-  { name: "settings", labelKey: "set.title", icon: Settings },
 ];
 
-const ROUTES = ["/", "/archive", "/items", "/analytics", "/settings"];
+const ROUTES = ["/", "/archive", "/items", "/analytics"];
 
 /**
  * The provider surface.
@@ -30,7 +29,7 @@ export default function BusinessLayout() {
   const { data: provider } = useMyProvider();
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
+    <SafeAreaView edges={["top"]} className="flex-1">
       <OfflineBanner />
       <ModeBar mode="business" provider={provider} />
       <Swipeable routes={ROUTES}>
@@ -42,7 +41,6 @@ export default function BusinessLayout() {
           <Tabs.Screen name="archive" />
           <Tabs.Screen name="items" />
           <Tabs.Screen name="analytics" />
-          <Tabs.Screen name="settings" />
           <Tabs.Screen name="onboarding" options={{ href: null }} />
         </Tabs>
       </Swipeable>

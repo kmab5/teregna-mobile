@@ -67,10 +67,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <View
             className={cn(
               "rounded-md border p-3.5",
-              "border-border bg-surface dark:border-d-border dark:bg-d-surface",
+              "",
             )}
             style={{
-              shadowColor: "#2A1A4A",
+              shadowColor: "#000000",
               shadowOpacity: 0.14,
               shadowRadius: 12,
               shadowOffset: { width: 0, height: 4 },
@@ -81,8 +81,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               className={cn(
                 "font-medium text-[15px]",
                 message.tone === "error" &&
-                  "text-destructive dark:text-d-destructive",
-                message.tone === "success" && "text-accent dark:text-d-accent",
+                  "",
+                message.tone === "success" && "",
               )}
             >
               {message.title}

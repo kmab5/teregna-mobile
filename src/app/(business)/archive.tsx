@@ -17,6 +17,7 @@ import { useT, useLocale } from "@/i18n/provider";
 import { makeFormat } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import type { Provider, RequestStatus } from "@/lib/database.types";
+import { useThemeColors } from "@/theme/colors";
 
 type Filter = "all" | RequestStatus;
 
@@ -25,6 +26,7 @@ export default function ArchiveScreen() {
 }
 
 function ArchiveList({ provider }: { provider: Provider }) {
+  const c = useThemeColors();
   const t = useT();
   const { locale } = useLocale();
   const fmt = makeFormat(locale);
@@ -60,7 +62,7 @@ function ArchiveList({ provider }: { provider: Provider }) {
       className="flex-1"
       contentContainerClassName="px-5 pb-7 gap-3 pt-4"
       refreshControl={
-        <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#6D28D9" />
+        <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={c.primary} />
       }
       ListHeaderComponent={
         <View className="gap-3">
@@ -75,16 +77,16 @@ function ArchiveList({ provider }: { provider: Provider }) {
                 className={cn(
                   "h-9 justify-center rounded-full px-3.5",
                   filter === f
-                    ? "bg-primary dark:bg-d-primary"
-                    : "bg-muted dark:bg-d-muted",
+                    ? ""
+                    : "",
                 )}
               >
                 <Text
                   className={cn(
                     "text-[13px] font-medium",
                     filter === f
-                      ? "text-on-primary dark:text-d-on-primary"
-                      : "text-ink-muted dark:text-d-ink-muted",
+                      ? ""
+                      : "",
                   )}
                 >
                   {f === "all" ? t("common.all") : t(`status.${f}` as never)}
@@ -117,7 +119,7 @@ function ArchiveList({ provider }: { provider: Provider }) {
                   {item.items.map((it, i) => (
                     <View
                       key={`${it.item_id ?? it.name}-${i}`}
-                      className="rounded-full bg-muted px-2.5 py-0.5 dark:bg-d-muted"
+                      className="rounded-full px-2.5 py-0.5"
                     >
                       <Text className="text-[11px]">
                         {it.quantity > 1 ? `${it.quantity}× ` : ""}
@@ -143,13 +145,13 @@ function ArchiveList({ provider }: { provider: Provider }) {
             className="mt-3 self-start"
             loading={restore.isPending && restore.variables === item.id}
             onPress={() => restore.mutate(item.id)}
-            icon={<RotateCcw size={15} color="#6D28D9" />}
+            icon={<RotateCcw size={15} color={c.primary} />}
           />
         </Card>
       )}
       ListEmptyComponent={
         <Card className="items-center py-10">
-          <Archive size={28} color="#5B517A" />
+          <Archive size={28} color={c.inkMuted} />
           <Text variant="title" className="mt-3">
             {t("arc.emptyTitle")}
           </Text>

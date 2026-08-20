@@ -1,5 +1,6 @@
 import { TextInput, View, type TextInputProps } from "react-native";
 import { Text } from "./text";
+import { useThemeColors } from "@/theme/colors";
 import { cn } from "@/lib/cn";
 
 export function Field({
@@ -8,6 +9,7 @@ export function Field({
   error,
   className,
   mono,
+  style,
   ...props
 }: TextInputProps & {
   label?: string;
@@ -15,25 +17,30 @@ export function Field({
   error?: string | null;
   mono?: boolean;
 }) {
+  const c = useThemeColors();
+
   return (
     <View className="gap-1.5">
-      {label ? <Text className="font-medium text-[14px]">{label}</Text> : null}
+      {label ? (
+        <Text className="text-[14px] font-medium">{label}</Text>
+      ) : null}
       <TextInput
         // The placeholder must clear 4.5:1 like body text, so it uses the muted
         // ink token rather than the platform default grey.
-        placeholderTextColor="#5B517A"
-        className={cn(
-          "h-12 rounded-sm border px-3 text-[16px]",
-          "border-border bg-surface text-ink",
-          "dark:border-d-border dark:bg-d-surface dark:text-d-ink",
-          mono && "font-mono",
-          error && "border-destructive dark:border-d-destructive",
-          className,
-        )}
+        placeholderTextColor={c.inkMuted}
+        className={cn("h-12 rounded-sm border px-3 text-[16px]", mono && "font-mono", className)}
+        style={[
+          {
+            backgroundColor: c.surface,
+            borderColor: error ? c.destructive : c.border,
+            color: c.ink,
+          },
+          style,
+        ]}
         {...props}
       />
       {error ? (
-        <Text className="text-[13px] text-destructive dark:text-d-destructive">
+        <Text variant="small" tone="danger">
           {error}
         </Text>
       ) : hint ? (

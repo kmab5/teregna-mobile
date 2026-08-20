@@ -29,8 +29,8 @@ export default function OrderScreen() {
   const t = useT();
   const { locale } = useLocale();
   const fmt = makeFormat(locale);
-  const c = useThemeColors();
   const router = useRouter();
+  const c = useThemeColors();
   const { user } = useAuth();
 
   const { data: order } = useQuery({
@@ -58,10 +58,10 @@ export default function OrderScreen() {
     waiting && order.expected_minutes > 0 && waited > order.expected_minutes;
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
+    <SafeAreaView edges={["top"]} className="flex-1">
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View className="h-12 flex-row items-center border-b border-border px-2 dark:border-d-border">
+      <View className="h-12 flex-row items-center border-b px-2">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t("common.back")}
@@ -95,14 +95,14 @@ export default function OrderScreen() {
               style={{ backgroundColor: c.softBg }}
             >
               <TriangleAlert size={16} color={c.warning} />
-              <Text className="flex-1 text-[13px] font-medium text-warning dark:text-d-warning">
+              <Text className="flex-1 text-[13px] font-medium">
                 {t("order.overdue")}
               </Text>
             </View>
           ) : null}
 
           <Card className="gap-3">
-            <Text className="text-[11px] font-medium uppercase tracking-wide text-ink-muted dark:text-d-ink-muted">
+            <Text className="text-[11px] font-medium uppercase tracking-wide">
               {isProvider ? t("order.customer") : t("order.provider")}
             </Text>
             <Text variant="title" className="text-[16px]">
@@ -115,10 +115,10 @@ export default function OrderScreen() {
                 accessibilityLabel={`${t("order.call")} ${counterparty}`}
                 onPress={() => Linking.openURL(`tel:${phone}`)}
                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                className="flex-row items-center gap-2 self-start rounded-md border border-border px-3 py-2.5 dark:border-d-border"
+                className="flex-row items-center gap-2 self-start rounded-md border px-3 py-2.5"
               >
                 <Phone size={15} color={c.primary} />
-                <Text className="font-mono text-[14px] text-primary dark:text-d-primary">
+                <Text className="font-mono text-[14px]">
                   {phone}
                 </Text>
               </Pressable>
@@ -131,7 +131,7 @@ export default function OrderScreen() {
 
           {order.items.length > 0 ? (
             <Card className="gap-2.5">
-              <Text className="text-[11px] font-medium uppercase tracking-wide text-ink-muted dark:text-d-ink-muted">
+              <Text className="text-[11px] font-medium uppercase tracking-wide">
                 {t("order.items")}
               </Text>
               {order.items.map((it, i) => (
@@ -143,12 +143,12 @@ export default function OrderScreen() {
                     {it.quantity > 1 ? `${it.quantity}× ` : ""}
                     {it.name}
                   </Text>
-                  <Text variant="mono" className="text-[13px] text-ink dark:text-d-ink">
+                  <Text variant="mono" className="text-[13px]">
                     {fmt.money(it.price)}
                   </Text>
                 </View>
               ))}
-              <View className="mt-1 flex-row items-center justify-between border-t border-border pt-2.5 dark:border-d-border">
+              <View className="mt-1 flex-row items-center justify-between border-t pt-2.5">
                 <Text className="font-medium">{t("order.total")}</Text>
                 <Text className="font-mono-bold text-[16px]">
                   {fmt.money(order.total_price)}

@@ -67,7 +67,7 @@ export default function Intro() {
   const last = index === SLIDES.length - 1;
 
   return (
-    <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-bg dark:bg-d-bg">
+    <SafeAreaView edges={["top", "bottom"]} className="flex-1">
       <View className="h-12 flex-row items-center justify-between px-5">
         <LanguageToggle />
         <Pressable
@@ -96,13 +96,13 @@ export default function Intro() {
             style={{ width }}
             className="flex-1 items-center justify-center px-9"
           >
-            <View className="h-24 w-24 items-center justify-center rounded-full bg-muted dark:bg-d-muted">
+            <View className="h-24 w-24 items-center justify-center rounded-full">
               <Icon size={40} color={c.primary} />
             </View>
             <Text variant="display" className="mt-8 text-center">
               {t(titleKey)}
             </Text>
-            <Text variant="body" className="mt-3 text-center text-ink-muted dark:text-d-ink-muted">
+            <Text variant="body" className="mt-3 text-center">
               {t(bodyKey)}
             </Text>
           </View>
@@ -117,8 +117,8 @@ export default function Intro() {
               className={cn(
                 "h-2 rounded-full",
                 i === index
-                  ? "w-6 bg-primary dark:bg-d-primary"
-                  : "w-2 bg-border dark:bg-d-border",
+                  ? "w-6"
+                  : "w-2",
               )}
             />
           ))}

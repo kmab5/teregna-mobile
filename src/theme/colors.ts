@@ -1,74 +1,139 @@
 import { useColorScheme } from "nativewind";
 
 /**
- * Resolved colours for props that cannot take a class name.
+ * The single source of truth for colour.
  *
- * React Native icons and chart primitives take a `color` string, not a
- * className, so NativeWind's `dark:` variant cannot reach them. Hardcoding a hex
- * is what produced a queue pill at 1.70:1 in dark mode - the text colour stayed
- * on its light-mode value while the background inverted around it.
+ * ---------------------------------------------------------------------------
+ * Why colour does not use `dark:` classes
  *
- * Pill values are the composited result of a 14% (light) / 22% (dark) tint over
- * the surface, measured rather than eyeballed: every pairing below clears 4.5:1.
+ * The app previously had TWO independent mechanisms deciding what "dark" meant:
+ * NativeWind's `dark:` variant, and this object. They have to agree on every
+ * single element, and when they disagreed the result was dark-mode text painted
+ * on light-mode backgrounds - which is what "the pill contrast is ruined" and
+ * "the background is too bright" both were.
+ *
+ * They cannot disagree now, because there is only one of them. NativeWind is
+ * used for LAYOUT (flex, spacing, radius, size); every colour comes from here as
+ * an inline style. A parity check fails the build on any `dark:` colour class.
+ * ---------------------------------------------------------------------------
  */
 export interface ThemeColors {
-  primary: string;
-  accent: string;
+  scheme: "light" | "dark";
+
+  // surfaces
+  bg: string;
+  surface: string;
+  surface2: string;
+  border: string;
+  muted: string;
+  /** Soft tint behind icons and callouts. */
+  softBg: string;
+
+  // text
   ink: string;
   inkMuted: string;
-  warning: string;
-  destructive: string;
-  surface: string;
-  border: string;
+
+  // brand
+  primary: string;
   onPrimary: string;
-  /**
-   * Pills use SOLID background/foreground pairs, never an alpha class.
-   *
-   * `bg-primary/[0.14]` looks like it composites, but NativeWind does not always
-   * emit arbitrary-opacity backgrounds - and when it does not, the background
-   * stays fully opaque. That is how the dark pill ended up at 1.47:1: light
-   * lavender text on solid lavender. Solid pairs cannot fail that way.
-   */
+  accent: string;
+  onAccent: string;
+  warning: string;
+  onWarning: string;
+  destructive: string;
+
+  // provider chrome
+  chrome: string;
+  onChrome: string;
+  onChromeMuted: string;
+  chromeBorder: string;
+
+  // pills — solid pairs, never alpha, so contrast cannot depend on whether a
+  // class compiled
   pillPrimaryBg: string;
   pillPrimaryText: string;
   pillAccentBg: string;
   pillAccentText: string;
-  /** Soft surface behind icons and callouts. */
-  softBg: string;
+  pillWarnBg: string;
+  pillWarnText: string;
+  pillDangerBg: string;
+  pillDangerText: string;
+  pillNeutralBg: string;
+  pillNeutralText: string;
 }
 
 const LIGHT: ThemeColors = {
-  primary: "#6D28D9",
-  accent: "#15803D",
+  scheme: "light",
+  bg: "#FAF7FF",
+  surface: "#FFFFFF",
+  surface2: "#F7F3FE",
+  border: "#E6DEF7",
+  muted: "#F0ECF9",
+  softBg: "#F0ECF9",
+
   ink: "#2A1A4A",
   inkMuted: "#5B517A",
-  warning: "#B45309",
-  destructive: "#B91C1C",
-  surface: "#FFFFFF",
-  border: "#E6DEF7",
+
+  primary: "#6D28D9",
   onPrimary: "#FFFFFF",
+  accent: "#15803D",
+  onAccent: "#FFFFFF",
+  warning: "#B45309",
+  onWarning: "#FFFFFF",
+  destructive: "#B91C1C",
+
+  chrome: "#F3EEFE",
+  onChrome: "#2A1A4A",
+  onChromeMuted: "#5B517A",
+  chromeBorder: "#DDD2F5",
+
   pillPrimaryBg: "#EDE9FE",
-  pillPrimaryText: "#4C1D95", // 9.2:1
+  pillPrimaryText: "#4C1D95",
   pillAccentBg: "#DCFCE7",
-  pillAccentText: "#14532D", // 8.3:1
-  softBg: "#F0ECF9",
+  pillAccentText: "#14532D",
+  pillWarnBg: "#FEF3C7",
+  pillWarnText: "#78350F",
+  pillDangerBg: "#FEE2E2",
+  pillDangerText: "#7F1D1D",
+  pillNeutralBg: "#F0ECF9",
+  pillNeutralText: "#4B4370",
 };
 
 const DARK: ThemeColors = {
-  primary: "#A78BFA",
-  accent: "#4ADE80",
-  ink: "#F2ECFF",
-  inkMuted: "#B7ACD6",
-  warning: "#FBBF24",
-  destructive: "#F87171",
-  surface: "#1E1836",
+  scheme: "dark",
+  bg: "#100D1C",
+  surface: "#1A1530",
+  surface2: "#221C3D",
   border: "#2E2650",
+  muted: "#241E42",
+  softBg: "#241E42",
+
+  ink: "#F2ECFF",
+  inkMuted: "#B0A5D0",
+
+  primary: "#A78BFA",
   onPrimary: "#1B1233",
-  pillPrimaryBg: "#4C1D95",
-  pillPrimaryText: "#EDE9FE", // 9.2:1
-  pillAccentBg: "#14532D",
-  pillAccentText: "#DCFCE7", // 8.3:1
-  softBg: "#262046",
+  accent: "#4ADE80",
+  onAccent: "#0B2818",
+  warning: "#FBBF24",
+  onWarning: "#3A2606",
+  destructive: "#F87171",
+
+  chrome: "#1F1938",
+  onChrome: "#F2ECFF",
+  onChromeMuted: "#B0A5D0",
+  chromeBorder: "#332B57",
+
+  pillPrimaryBg: "#3B2A72",
+  pillPrimaryText: "#E9E1FF",
+  pillAccentBg: "#12432A",
+  pillAccentText: "#BBF7D0",
+  pillWarnBg: "#4A3208",
+  pillWarnText: "#FDE68A",
+  pillDangerBg: "#4C1D1D",
+  pillDangerText: "#FECACA",
+  pillNeutralBg: "#241E42",
+  pillNeutralText: "#CFC6EA",
 };
 
 export function useThemeColors(): ThemeColors {

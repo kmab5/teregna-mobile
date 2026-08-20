@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { isExpoGo, registerForPush } from "@/lib/push";
 import { useT } from "@/i18n/provider";
+import { useThemeColors } from "@/theme/colors";
 
 const ASKED_KEY = "teregna_push_asked";
 
@@ -22,6 +23,7 @@ const ASKED_KEY = "teregna_push_asked";
  * on every visit.
  */
 export function PushPrompt({ audience }: { audience: "receiver" | "provider" }) {
+  const c = useThemeColors();
   const t = useT();
   const toast = useToast();
   const [visible, setVisible] = useState(false);
@@ -61,9 +63,9 @@ export function PushPrompt({ audience }: { audience: "receiver" | "provider" }) 
   if (!visible) return null;
 
   return (
-    <View className="rounded-md border border-primary/30 bg-primary/5 p-4 dark:border-d-primary/30 dark:bg-d-primary/10">
+    <View className="rounded-md border p-4">
       <View className="flex-row items-start gap-2.5">
-        <Bell size={18} color="#6D28D9" />
+        <Bell size={18} color={c.primary} />
         <View className="flex-1">
           <Text className="font-medium text-[15px]">{t("push.enableTitle")}</Text>
           <Text variant="small" className="mt-0.5">

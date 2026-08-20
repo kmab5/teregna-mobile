@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FlatList, Pressable, RefreshControl, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Inbox } from "lucide-react-native";
+import { Inbox, X } from "lucide-react-native";
 import { Screen } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
@@ -19,8 +19,10 @@ import { useT, useLocale } from "@/i18n/provider";
 import { elapsed, makeFormat } from "@/lib/format";
 import { ACTIVE_STATUSES, type MyRequest } from "@/lib/database.types";
 import { cn } from "@/lib/cn";
+import { useThemeColors } from "@/theme/colors";
 
 export default function RequestsScreen() {
+  const c = useThemeColors();
   const t = useT();
   const router = useRouter();
   const qc = useQueryClient();
@@ -73,11 +75,11 @@ export default function RequestsScreen() {
         }
         contentContainerClassName="gap-3 pb-6"
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#6D28D9" />
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={c.primary} />
         }
         renderItem={({ item }) =>
           "header" in item ? (
-            <Text className="mt-2 text-[11px] font-medium uppercase tracking-wide text-ink-muted dark:text-d-ink-muted">
+            <Text className="mt-2 text-[11px] font-medium uppercase tracking-wide">
               {item.header}
             </Text>
           ) : (
@@ -94,7 +96,7 @@ export default function RequestsScreen() {
             <SkeletonList count={3} />
           ) : (
             <Card className="items-center py-10">
-              <Inbox size={28} color="#5B517A" />
+              <Inbox size={28} color={c.inkMuted} />
               <Text variant="title" className="mt-3">
                 {t("req.emptyTitle")}
               </Text>
@@ -126,6 +128,7 @@ function RequestCard({
   pending: boolean;
 }) {
   const t = useT();
+  const c = useThemeColors();
   const router = useRouter();
   const { locale } = useLocale();
   const fmt = makeFormat(locale);
@@ -138,10 +141,10 @@ function RequestCard({
         {/* Position answers the only question a receiver has. */}
         {isActive && request.position ? (
           <View className="items-center">
-            <Text className="font-mono-bold text-[30px] leading-[32px] text-primary dark:text-d-primary">
+            <Text className="font-mono-bold text-[30px] leading-[32px]">
               {request.position}
             </Text>
-            <Text className="mt-0.5 text-[10px] uppercase tracking-wide text-ink-muted dark:text-d-ink-muted">
+            <Text className="mt-0.5 text-[10px] uppercase tracking-wide">
               {t("req.inLine")}
             </Text>
           </View>
@@ -164,10 +167,10 @@ function RequestCard({
                 className={cn(
                   "font-mono text-[12px]",
                   wait.minutes >= 45
-                    ? "text-destructive dark:text-d-destructive"
+                    ? ""
                     : wait.minutes >= 20
-                      ? "text-warning dark:text-d-warning"
-                      : "text-ink-muted dark:text-d-ink-muted",
+                      ? ""
+                      : "",
                 )}
               >
                 {t("wait.waiting", {
@@ -189,9 +192,9 @@ function RequestCard({
               {request.items.map((it, i) => (
                 <View
                   key={`${it.item_id ?? it.name}-${i}`}
-                  className="rounded-full bg-muted px-2.5 py-0.5 dark:bg-d-muted"
+                  className="rounded-full px-2.5 py-0.5"
                 >
-                  <Text className="text-[11px] text-ink dark:text-d-ink">
+                  <Text className="text-[11px]">
                     {it.quantity > 1 ? `${it.quantity}× ` : ""}
                     {it.name}
                   </Text>
@@ -208,15 +211,20 @@ function RequestCard({
 
           </Pressable>
 
+          {/* Icon only. The labelled button overflowed the card, and "cancel
+              this request" is unambiguous sitting next to the request. */}
           {isActive ? (
-            <Button
-              title={t("common.cancel")}
-              variant="destructive"
-              size="sm"
-              loading={pending}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t("common.cancel")}
               onPress={onCancel}
-              className="mt-3 self-start"
-            />
+              disabled={pending}
+              hitSlop={8}
+              className="mt-3 h-11 w-11 items-center justify-center self-start rounded-full border"
+              style={{ borderColor: c.border, opacity: pending ? 0.5 : 1 }}
+            >
+              <X size={17} color={c.destructive} />
+            </Pressable>
           ) : null}
       </View>
     </Card>

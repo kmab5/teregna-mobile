@@ -10,8 +10,10 @@ import { useCategories, useDiscovery } from "@/lib/queries";
 import { useT } from "@/i18n/provider";
 import { cn } from "@/lib/cn";
 import type { ProviderPublic } from "@/lib/database.types";
+import { useThemeColors } from "@/theme/colors";
 
 export default function BrowseScreen() {
+  const c = useThemeColors();
   const t = useT();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string | null>(null);
@@ -32,15 +34,15 @@ export default function BrowseScreen() {
 
   return (
     <Screen title={t("browse.title")} subtitle={t("browse.subtitle")}>
-      <View className="flex-row items-center gap-2 rounded-sm border border-border bg-surface px-3 dark:border-d-border dark:bg-d-surface">
-        <Search size={16} color="#5B517A" />
+      <View className="flex-row items-center gap-2 rounded-sm border px-3">
+        <Search size={16} color={c.inkMuted} />
         <TextInput
           value={search}
           onChangeText={setSearch}
           placeholder={t("browse.searchPlaceholder")}
           accessibilityLabel={t("browse.searchLabel")}
-          placeholderTextColor="#5B517A"
-          className="h-12 flex-1 font-sans text-[16px] text-ink dark:text-d-ink"
+          placeholderTextColor={c.inkMuted}
+          className="h-12 flex-1 font-sans text-[16px]"
         />
       </View>
 
@@ -63,16 +65,16 @@ export default function BrowseScreen() {
                 className={cn(
                   "h-9 justify-center rounded-full px-3.5",
                   selected
-                    ? "bg-primary dark:bg-d-primary"
-                    : "bg-muted dark:bg-d-muted",
+                    ? ""
+                    : "",
                 )}
               >
                 <Text
                   className={cn(
                     "text-[13px] font-medium capitalize",
                     selected
-                      ? "text-on-primary dark:text-d-on-primary"
-                      : "text-ink-muted dark:text-d-ink-muted",
+                      ? ""
+                      : "",
                   )}
                 >
                   {item ?? t("common.all")}
@@ -89,7 +91,7 @@ export default function BrowseScreen() {
         className="mt-4"
         contentContainerClassName="gap-3 pb-6"
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#6D28D9" />
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={c.primary} />
         }
         renderItem={({ item }) => <ProviderCard provider={item} />}
         ListEmptyComponent={
@@ -111,6 +113,7 @@ export default function BrowseScreen() {
 
 function ProviderCard({ provider }: { provider: ProviderPublic }) {
   const router = useRouter();
+  const c = useThemeColors();
 
   /*
    * The touch target is a plain Pressable with a `style` prop and no className.
@@ -152,16 +155,16 @@ function ProviderCard({ provider }: { provider: ProviderPublic }) {
 
         <View className="mt-3 flex-row items-center gap-3">
           {provider.category ? (
-            <View className="rounded-full bg-muted px-2 py-0.5 dark:bg-d-muted">
-              <Text className="text-[11px] capitalize text-ink-muted dark:text-d-ink-muted">
+            <View className="rounded-full px-2 py-0.5">
+              <Text className="text-[11px] capitalize">
                 {provider.category}
               </Text>
             </View>
           ) : null}
           {provider.location ? (
             <View className="flex-row items-center gap-1">
-              <MapPin size={11} color="#5B517A" />
-              <Text className="text-[11px] text-ink-muted dark:text-d-ink-muted">
+              <MapPin size={11} color={c.inkMuted} />
+              <Text className="text-[11px]">
                 {provider.location}
               </Text>
             </View>

@@ -19,6 +19,7 @@ import { errorKey } from "@/lib/errors";
 import { qk } from "@/lib/query-keys";
 import { useT } from "@/i18n/provider";
 import { cn } from "@/lib/cn";
+import { useThemeColors } from "@/theme/colors";
 
 const CATEGORIES = [
   "barber", "salon", "tailor", "clinic", "dentist",
@@ -36,6 +37,7 @@ const STEP_KEYS = ["ob.business", "ob.contact", "ob.services"] as const;
  * are gated per step rather than collected optionally and skipped in silence.
  */
 export default function Onboarding() {
+  const c = useThemeColors();
   const t = useT();
   const router = useRouter();
   const qc = useQueryClient();
@@ -101,7 +103,7 @@ export default function Onboarding() {
   });
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-bg dark:bg-d-bg">
+    <SafeAreaView edges={["top"]} className="flex-1">
       <ScrollView
         className="flex-1 px-5"
         contentContainerClassName="pb-7 pt-5 gap-5"
@@ -115,21 +117,21 @@ export default function Onboarding() {
                 className={cn(
                   "h-7 w-7 items-center justify-center rounded-full border-2",
                   i < step
-                    ? "border-accent bg-accent"
+                    ? ""
                     : i === step
-                      ? "border-primary bg-primary dark:border-d-primary dark:bg-d-primary"
-                      : "border-border dark:border-d-border",
+                      ? ""
+                      : "",
                 )}
               >
                 {i < step ? (
-                  <Check size={13} color="#FFFFFF" />
+                  <Check size={13} color={c.onPrimary} />
                 ) : (
                   <Text
                     className={cn(
                       "font-mono text-[12px]",
                       i === step
-                        ? "text-on-primary dark:text-d-on-primary"
-                        : "text-ink-muted dark:text-d-ink-muted",
+                        ? ""
+                        : "",
                     )}
                   >
                     {i + 1}
@@ -137,7 +139,7 @@ export default function Onboarding() {
                 )}
               </View>
               {i < STEP_KEYS.length - 1 ? (
-                <View className="h-px flex-1 bg-border dark:bg-d-border" />
+                <View className="h-px flex-1" />
               ) : null}
             </View>
           ))}
@@ -169,16 +171,16 @@ export default function Onboarding() {
                     className={cn(
                       "h-10 justify-center rounded-full px-3.5",
                       category === c
-                        ? "bg-primary dark:bg-d-primary"
-                        : "bg-muted dark:bg-d-muted",
+                        ? ""
+                        : "",
                     )}
                   >
                     <Text
                       className={cn(
                         "text-[13px] font-medium capitalize",
                         category === c
-                          ? "text-on-primary dark:text-d-on-primary"
-                          : "text-ink-muted dark:text-d-ink-muted",
+                          ? ""
+                          : "",
                       )}
                     >
                       {c}
@@ -260,7 +262,7 @@ export default function Onboarding() {
                       onPress={() => setServices(services.filter((_, j) => j !== i))}
                       className="h-12 w-11 items-center justify-center"
                     >
-                      <Trash2 size={16} color="#B91C1C" />
+                      <Trash2 size={16} color={c.destructive} />
                     </Pressable>
                   ) : null}
                 </View>
@@ -299,14 +301,14 @@ export default function Onboarding() {
               title={t("ob.sAddAnother")}
               variant="outline"
               onPress={() => setServices([...services, { name: "", price: "", duration: "" }])}
-              icon={<Plus size={16} color="#6D28D9" />}
+              icon={<Plus size={16} color={c.primary} />}
             />
 
             <Text variant="small">{t("ob.sMinutesNote")}</Text>
 
             {filled.length === 0 ? (
-              <View className="rounded-sm bg-warning/10 p-3 dark:bg-d-warning/15">
-                <Text className="text-[13px] text-warning dark:text-d-warning">
+              <View className="rounded-sm p-3">
+                <Text className="text-[13px]">
                   {t("ob.sSkipWarning")}
                 </Text>
               </View>
@@ -325,7 +327,7 @@ export default function Onboarding() {
               variant="outline"
               size="lg"
               onPress={() => setStep(step - 1)}
-              icon={<ArrowLeft size={16} color="#6D28D9" />}
+              icon={<ArrowLeft size={16} color={c.primary} />}
             />
           ) : null}
 
@@ -336,7 +338,7 @@ export default function Onboarding() {
               className="flex-1"
               disabled={missing.length > 0}
               onPress={() => setStep(step + 1)}
-              icon={<ArrowRight size={16} color="#FFFFFF" />}
+              icon={<ArrowRight size={16} color={c.onPrimary} />}
             />
           ) : (
             <Button

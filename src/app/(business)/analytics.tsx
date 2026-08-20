@@ -37,15 +37,15 @@ function Analytics({ provider }: { provider: Provider }) {
             onPress={() => setDays(r)}
             className={cn(
               "h-9 justify-center rounded-full px-3.5",
-              days === r ? "bg-primary dark:bg-d-primary" : "bg-muted dark:bg-d-muted",
+              days === r ? "" : "",
             )}
           >
             <Text
               className={cn(
                 "text-[13px] font-medium",
                 days === r
-                  ? "text-on-primary dark:text-d-on-primary"
-                  : "text-ink-muted dark:text-d-ink-muted",
+                  ? ""
+                  : "",
               )}
             >
               {t("an.days", { count: r })}

@@ -19,8 +19,10 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.kmab.teregna",
-      "permissions": ["POST_NOTIFICATIONS"]
+      "package": "app.teregna.mobile",
+      "permissions": [
+        "POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "output": "static",

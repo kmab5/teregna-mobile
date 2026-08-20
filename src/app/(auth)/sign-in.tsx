@@ -78,7 +78,7 @@ export default function SignIn() {
   }
 
   return (
-    <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-bg dark:bg-d-bg">
+    <SafeAreaView edges={["top", "bottom"]} className="flex-1">
       <ScrollView
         className="flex-1 px-6"
         contentContainerClassName="grow justify-center py-12"
@@ -103,11 +103,11 @@ export default function SignIn() {
         />
 
         <View className="my-5 flex-row items-center gap-3">
-          <View className="h-px flex-1 bg-border dark:bg-d-border" />
+          <View className="h-px flex-1" />
           <Text variant="small" className="uppercase">
             {t("auth.or")}
           </Text>
-          <View className="h-px flex-1 bg-border dark:bg-d-border" />
+          <View className="h-px flex-1" />
         </View>
 
         <View className="gap-4">
@@ -185,7 +185,7 @@ export default function SignIn() {
         >
           <Text variant="small">
             {mode === "signin" ? t("auth.newHere") : t("auth.haveAccount")}{" "}
-            <Text className="font-medium text-primary dark:text-d-primary">
+            <Text className="font-medium">
               {mode === "signin" ? t("auth.create") : t("auth.signIn")}
             </Text>
           </Text>
