@@ -18,6 +18,7 @@ import { NotoSansEthiopic_400Regular } from "@expo-google-fonts/noto-sans-ethiop
 import { AuthProvider } from "@/lib/auth";
 import { ToastProvider } from "@/components/ui/toast";
 import { DrawerProvider } from "@/components/nav/drawer";
+import { PhoneGate } from "@/components/teregna/phone-gate";
 import { configureAndroidChannel } from "@/lib/push";
 import { I18nProvider, useLocale } from "@/i18n/provider";
 import { ThemeProvider } from "@/theme/provider";
@@ -105,6 +106,7 @@ export default function RootLayout() {
                   <Stack.Screen name="settings" />
                   <Stack.Screen name="guide" />
                 </Stack>
+                  <PhoneGate />
                 </DrawerProvider>
               </Gate>
               </ToastProvider>

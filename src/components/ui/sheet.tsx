@@ -40,11 +40,17 @@ export function Sheet({
         accessibilityRole="button"
         accessibilityLabel={title}
         onPress={onClose}
-        className="flex-1 bg-black/40"
+        className="flex-1"
+        style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
       />
       <View
         className="rounded-t-lg border-t"
-        style={{ paddingBottom: insets.bottom + 16, maxHeight: "88%" }}
+        style={{
+          backgroundColor: c.surface,
+          borderColor: c.border,
+          paddingBottom: insets.bottom + 16,
+          maxHeight: "88%",
+        }}
       >
         <View className="flex-row items-start justify-between gap-3 px-5 pb-2 pt-5">
           <View className="flex-1">
@@ -59,7 +65,7 @@ export function Sheet({
             accessibilityRole="button"
             onPress={onClose}
             hitSlop={8}
-            className="h-11 w-11 items-center justify-center rounded-full active: dark:active:"
+            className="h-11 w-11 items-center justify-center rounded-full"
           >
             <X size={18} color={c.inkMuted} />
           </Pressable>

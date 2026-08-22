@@ -222,7 +222,10 @@ export default function SettingsScreen() {
             <Pressable
               accessibilityRole="button"
               onPress={() => router.push("/(business)/items" as never)}
-              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.7 : 1,
+                borderColor: c.border,
+              })}
               className="flex-row items-center gap-3 rounded-md border p-3"
             >
               <Store size={17} color={c.primary} />

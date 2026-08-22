@@ -134,7 +134,7 @@ export default function ProviderScreen() {
     return (
       <SafeAreaView edges={["top"]} className="flex-1">
         <Stack.Screen options={{ headerShown: false }} />
-        <View className="h-12 flex-row items-center border-b px-2">
+        <View className="h-12 flex-row items-center border-b px-2" style={{ borderColor: c.border }}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t("common.back")}
@@ -173,12 +173,12 @@ export default function ProviderScreen() {
     <SafeAreaView edges={["top"]} className="flex-1">
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View className="h-12 flex-row items-center gap-1 border-b px-2">
+      <View className="h-12 flex-row items-center gap-1 border-b px-2" style={{ borderColor: c.border }}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t("common.back")}
           onPress={() => router.back()}
-          className="h-11 w-11 items-center justify-center rounded-full active: dark:active:"
+          className="h-11 w-11 items-center justify-center rounded-full"
         >
           <ChevronLeft size={22} color={c.primary} />
         </Pressable>
@@ -282,6 +282,7 @@ export default function ProviderScreen() {
                             setSelected((p) => ({ ...p, [item.id]: Math.max(1, qty - 1) }))
                           }
                           className="h-9 w-9 items-center justify-center rounded-sm border"
+                          style={{ borderColor: c.border }}
                         >
                           <Text>−</Text>
                         </Pressable>
@@ -292,6 +293,7 @@ export default function ProviderScreen() {
                             setSelected((p) => ({ ...p, [item.id]: Math.min(99, qty + 1) }))
                           }
                           className="h-9 w-9 items-center justify-center rounded-sm border"
+                          style={{ borderColor: c.border }}
                         >
                           <Text>+</Text>
                         </Pressable>
@@ -322,6 +324,7 @@ export default function ProviderScreen() {
             placeholder={t("send.notePlaceholder")}
             placeholderTextColor={c.inkMuted}
             className="min-h-20 rounded-sm border p-3 font-sans text-[16px]"
+            style={{ backgroundColor: c.surface, borderColor: c.border, color: c.ink }}
           />
         </View>
 
@@ -351,7 +354,10 @@ export default function ProviderScreen() {
       </ScrollView>
 
       {/* Anchored so the primary action is always under the thumb. */}
-      <View className="border-t px-5 pb-4 pt-3">
+      <View
+        className="border-t px-5 pb-4 pt-3"
+        style={{ backgroundColor: c.bg, borderColor: c.border }}
+      >
         <Button
           size="lg"
           title={

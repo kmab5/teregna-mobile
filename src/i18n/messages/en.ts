@@ -11,6 +11,10 @@
  */
 export const en = {
   "app.name": "Teregna",
+  "bar.customerSub": "Find and join queues",
+  "bar.businessSub": "{count} waiting",
+  "bar.businessIdle": "Nobody waiting",
+  "bar.closed": "Closed",
   "common.cancel": "Cancel",
   "common.save": "Save changes",
   "common.saving": "Saving…",
@@ -422,6 +426,10 @@ export const en = {
   "set.manageItems": "Services and prices",
   "set.manageItemsHint": "Add, hide or reorder what you offer",
   "set.noBusinessTitle": "You do not run a business yet",
+
+  "phone.gateTitle": "One more thing",
+  "phone.gateBody": "Providers need a number to reach you when your request is done. It is never shown publicly.",
+  "phone.gateSave": "Save and continue",
 
   "err.unauthenticated": "Your session ended. Sign in to pick up where you left off.",
   "err.not_owner": "That request is no longer available to you.",

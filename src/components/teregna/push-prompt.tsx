@@ -63,7 +63,10 @@ export function PushPrompt({ audience }: { audience: "receiver" | "provider" }) 
   if (!visible) return null;
 
   return (
-    <View className="rounded-md border p-4">
+    <View
+      className="rounded-md border p-4"
+      style={{ backgroundColor: c.softBg, borderColor: c.border }}
+    >
       <View className="flex-row items-start gap-2.5">
         <Bell size={18} color={c.primary} />
         <View className="flex-1">

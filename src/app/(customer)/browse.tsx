@@ -34,7 +34,10 @@ export default function BrowseScreen() {
 
   return (
     <Screen title={t("browse.title")} subtitle={t("browse.subtitle")}>
-      <View className="flex-row items-center gap-2 rounded-sm border px-3">
+      <View
+        className="flex-row items-center gap-2 rounded-sm border px-3"
+        style={{ backgroundColor: c.surface, borderColor: c.border }}
+      >
         <Search size={16} color={c.inkMuted} />
         <TextInput
           value={search}

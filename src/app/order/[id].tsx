@@ -61,7 +61,7 @@ export default function OrderScreen() {
     <SafeAreaView edges={["top"]} className="flex-1">
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View className="h-12 flex-row items-center border-b px-2">
+      <View className="h-12 flex-row items-center border-b px-2" style={{ borderColor: c.border }}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t("common.back")}
@@ -114,7 +114,10 @@ export default function OrderScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={`${t("order.call")} ${counterparty}`}
                 onPress={() => Linking.openURL(`tel:${phone}`)}
-                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                style={({ pressed }) => ({
+                  opacity: pressed ? 0.7 : 1,
+                  borderColor: c.border,
+                })}
                 className="flex-row items-center gap-2 self-start rounded-md border px-3 py-2.5"
               >
                 <Phone size={15} color={c.primary} />
@@ -148,7 +151,10 @@ export default function OrderScreen() {
                   </Text>
                 </View>
               ))}
-              <View className="mt-1 flex-row items-center justify-between border-t pt-2.5">
+              <View
+                className="mt-1 flex-row items-center justify-between border-t pt-2.5"
+                style={{ borderColor: c.border }}
+              >
                 <Text className="font-medium">{t("order.total")}</Text>
                 <Text className="font-mono-bold text-[16px]">
                   {fmt.money(order.total_price)}

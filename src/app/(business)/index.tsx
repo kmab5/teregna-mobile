@@ -311,7 +311,10 @@ function SetupChecklist({ steps }: { steps: Step[] }) {
   const next = remaining[0];
 
   return (
-    <View className="rounded-md border p-4">
+    <View
+      className="rounded-md border p-4"
+      style={{ backgroundColor: c.pillWarnBg, borderColor: c.pillWarnBg }}
+    >
       <View className="flex-row items-start gap-2.5">
         <CircleAlert size={18} color={c.warning} />
         <View className="flex-1">

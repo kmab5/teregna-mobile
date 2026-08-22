@@ -190,7 +190,10 @@ function Items({ provider }: { provider: Provider }) {
               </View>
             </View>
 
-            <View className="flex-row items-center gap-3 border-t pt-2.5">
+            <View
+              className="flex-row items-center gap-3 border-t pt-2.5"
+              style={{ borderColor: c.border }}
+            >
               <Switch
                 value={item.is_visible}
                 onValueChange={(v) => toggle.mutate({ id: item.id, visible: v })}
@@ -389,7 +392,10 @@ function ItemSheet({
         className="h-20 py-3"
       />
 
-      <View className="flex-row items-center justify-between rounded-sm border p-3">
+      <View
+        className="flex-row items-center justify-between rounded-sm border p-3"
+        style={{ borderColor: c.border }}
+      >
         <View className="flex-1 pr-3">
           <Text className="font-medium text-[14px]">{t("it.visible")}</Text>
           <Text variant="small">{t("it.visibleHint")}</Text>

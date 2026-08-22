@@ -8,6 +8,7 @@ import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/teregna/status-badge";
+import { MarqueeText } from "@/components/teregna/marquee-text";
 import { PushPrompt } from "@/components/teregna/push-prompt";
 import { SkeletonList } from "@/components/ui/skeleton";
 import { useMyRequests } from "@/lib/queries";
@@ -18,7 +19,6 @@ import { useAuth } from "@/lib/auth";
 import { useT, useLocale } from "@/i18n/provider";
 import { elapsed, makeFormat } from "@/lib/format";
 import { ACTIVE_STATUSES, type MyRequest } from "@/lib/database.types";
-import { cn } from "@/lib/cn";
 import { useThemeColors } from "@/theme/colors";
 
 export default function RequestsScreen() {
@@ -141,37 +141,47 @@ function RequestCard({
         {/* Position answers the only question a receiver has. */}
         {isActive && request.position ? (
           <View className="items-center">
-            <Text className="font-mono-bold text-[30px] leading-[32px]">
+            <Text
+              tone="inherit"
+              style={{ color: c.primary }}
+              className="font-mono-bold text-[30px] leading-[32px]"
+            >
               {request.position}
             </Text>
-            <Text className="mt-0.5 text-[10px] uppercase tracking-wide">
+            <Text variant="label" className="mt-0.5 text-[10px]">
               {t("req.inLine")}
             </Text>
           </View>
         ) : null}
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t("order.open")}
-          onPress={() =>
-            router.push({ pathname: "/order/[id]", params: { id: request.id } })
-          }
-          style={({ pressed }) => ({ flex: 1, opacity: pressed ? 0.7 : 1 })}
-        >
-          <Text variant="title">{request.provider_name}</Text>
+        <View className="min-w-0 flex-1">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t("order.open")}
+            onPress={() =>
+              router.push({ pathname: "/order/[id]", params: { id: request.id } })
+            }
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+          >
+            <MarqueeText className="font-display text-[19px] font-semibold">
+              {request.provider_name}
+            </MarqueeText>
+          </Pressable>
 
           <View className="mt-1.5 flex-row flex-wrap items-center gap-2">
             <StatusBadge status={request.status} />
             {isActive ? (
               <Text
-                className={cn(
-                  "font-mono text-[12px]",
-                  wait.minutes >= 45
-                    ? ""
-                    : wait.minutes >= 20
-                      ? ""
-                      : "",
-                )}
+                tone="inherit"
+                style={{
+                  color:
+                    wait.minutes >= 45
+                      ? c.destructive
+                      : wait.minutes >= 20
+                        ? c.warning
+                        : c.inkMuted,
+                }}
+                className="font-mono text-[12px]"
               >
                 {t("wait.waiting", {
                   value: wait.value,
@@ -193,6 +203,7 @@ function RequestCard({
                 <View
                   key={`${it.item_id ?? it.name}-${i}`}
                   className="rounded-full px-2.5 py-0.5"
+                  style={{ backgroundColor: c.muted }}
                 >
                   <Text className="text-[11px]">
                     {it.quantity > 1 ? `${it.quantity}× ` : ""}
@@ -208,24 +219,23 @@ function RequestCard({
               {request.note}
             </Text>
           ) : null}
+        </View>
 
+        {/* Flush right, outside the text column. A long name scrolls inside its
+            own box rather than pushing this off the card. */}
+        {isActive ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t("common.cancel")}
+            onPress={onCancel}
+            disabled={pending}
+            hitSlop={8}
+            className="h-11 w-11 shrink-0 items-center justify-center rounded-full border"
+            style={{ borderColor: c.border, opacity: pending ? 0.5 : 1 }}
+          >
+            <X size={17} color={c.destructive} />
           </Pressable>
-
-          {/* Icon only. The labelled button overflowed the card, and "cancel
-              this request" is unambiguous sitting next to the request. */}
-          {isActive ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t("common.cancel")}
-              onPress={onCancel}
-              disabled={pending}
-              hitSlop={8}
-              className="mt-3 h-11 w-11 items-center justify-center self-start rounded-full border"
-              style={{ borderColor: c.border, opacity: pending ? 0.5 : 1 }}
-            >
-              <X size={17} color={c.destructive} />
-            </Pressable>
-          ) : null}
+        ) : null}
       </View>
     </Card>
   );

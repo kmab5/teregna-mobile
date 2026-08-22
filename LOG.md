@@ -313,6 +313,35 @@ interaction review needs a human with an Android phone running `npx expo start`.
 
 ## Session history
 
+### Session 15 — colour repair, taller bar, phone gate
+
+The Session 13 sweep stripped colour classes but did not always replace them, so
+**22 elements across 11 files were rendering with no colour at all** - borders
+with no border colour, panels with no background. It also left malformed class
+fragments like `active: dark:active:`. That is what "the theming is completely
+blown over" was.
+
+- **Every element audited and repaired.** A checker now walks each `className`
+  looking for a border or background class with no matching style within the
+  element, and reports zero.
+- **All 38 colour pairings re-measured** in both schemes; all pass 4.5:1.
+- **Top bar 48px → 64px, two lines.** At one line it was the same height as a
+  list row, so it read as content rather than chrome. The second line carries
+  what you would otherwise open a screen to check: how many are waiting, or that
+  you are closed.
+- **Request row rebuilt.** The cancel control sits outside the text column and
+  flush right, so a long provider name can never push it off the card. The name
+  scrolls inside its own clipped box rather than truncating - for a business the
+  distinguishing part is often at the end ("Abebe Barbershop **Bole**").
+- **Phone gate**, both platforms. Signup requires a number, but Google sign-in
+  returns none and older accounts have none. Not dismissable: a "later" that
+  never comes leaves the account permanently unable to complete a transaction.
+
+A mechanical lesson worth keeping: the first repair attempt used a regex over
+whole files and mangled a TypeScript type annotation (`active: boolean` became
+`boolean`). Restricting the same edit to `className="..."` literals only made it
+safe. Sweeping regexes need a narrower anchor than "the file".
+
 ### Session 14 — drawer and central settings
 
 Account and Settings were two screens doing the same job, and both were tabs -

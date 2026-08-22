@@ -52,7 +52,12 @@ export function BottomBar({
   return (
     <View
       className="flex-row border-t"
-      style={{ paddingBottom: Math.max(insets.bottom, 8), paddingTop: 8 }}
+      style={{
+        backgroundColor: c.surface,
+        borderColor: c.border,
+        paddingBottom: Math.max(insets.bottom, 8),
+        paddingTop: 8,
+      }}
     >
       {state.routes.map((route, index) => {
         const meta = tabs.find((tab) => tab.name === route.name);

@@ -12,6 +12,10 @@ import type { Messages } from "./en";
  */
 export const am: Messages = {
   "app.name": "ተረኛ",
+  "bar.customerSub": "ሰልፎችን ያግኙ እና ይቀላቀሉ",
+  "bar.businessSub": "{count} በመጠበቅ ላይ",
+  "bar.businessIdle": "ማንም አይጠብቅም",
+  "bar.closed": "ዝግ",
   "common.cancel": "ይቅር",
   "common.save": "ለውጦችን አስቀምጥ",
   "common.saving": "በማስቀመጥ ላይ…",
@@ -403,6 +407,10 @@ export const am: Messages = {
   "set.manageItems": "አገልግሎቶችና ዋጋዎች",
   "set.manageItemsHint": "የሚያቀርቡትን ይጨምሩ፣ ይደብቁ ወይም ያስተካክሉ",
   "set.noBusinessTitle": "እስካሁን ንግድ የለዎትም",
+
+  "phone.gateTitle": "አንድ ተጨማሪ ነገር",
+  "phone.gateBody": "ጥያቄዎ ሲጠናቀቅ አገልግሎት ሰጪዎች የሚያገኙዎት ቁጥር ያስፈልጋቸዋል። በአደባባይ አይታይም።",
+  "phone.gateSave": "አስቀምጥና ቀጥል",
 
   "err.unauthenticated": "ክፍለ ጊዜዎ አብቅቷል። ካቆሙበት ለመቀጠል ይግቡ።",
   "err.not_owner": "ያ ጥያቄ ለእርስዎ አይገኝም።",

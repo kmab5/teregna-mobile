@@ -60,6 +60,7 @@ export function ChartCard({
           accessibilityState={{ selected: asTable }}
           onPress={() => setAsTable((v) => !v)}
           className="h-9 flex-row items-center gap-1.5 rounded-sm border px-2.5"
+          style={{ borderColor: c.border }}
         >
           {asTable ? (
             <ChartLine size={13} color={c.inkMuted} />
@@ -104,9 +105,10 @@ function DataTable({
   firstCol: string;
   valueCol: string;
 }) {
+  const c = useThemeColors();
   return (
     <ScrollView className="max-h-64" nestedScrollEnabled>
-      <View className="flex-row border-b pb-2">
+      <View className="flex-row border-b pb-2" style={{ borderColor: c.border }}>
         <Text className="flex-1 text-[13px] font-medium">{firstCol}</Text>
         <Text className="text-[13px] font-medium">{valueCol}</Text>
       </View>
@@ -114,6 +116,7 @@ function DataTable({
         <View
           key={d.label}
           className="flex-row border-b py-2"
+          style={{ borderColor: c.border }}
         >
           <Text className="flex-1 text-[13px]">{d.label}</Text>
           <Text variant="mono" className="text-[13px]">
@@ -234,8 +237,10 @@ export function StatCard({
   value: string;
   hint?: string;
 }) {
+  const c = useThemeColors();
   return (
-    <View className="min-w-[46%] flex-1 rounded-md border p-3.5">
+    <View className="min-w-[46%] flex-1 rounded-md border p-3.5"
+      style={{ backgroundColor: c.surface, borderColor: c.border }}>
       <Text className="text-[11px] uppercase tracking-wide">
         {label}
       </Text>
