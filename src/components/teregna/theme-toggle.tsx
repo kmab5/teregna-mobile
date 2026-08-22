@@ -40,7 +40,7 @@ export function ThemeToggle() {
           >
             <View
               className={cn(
-                "items-center gap-1.5 rounded-md border py-3",
+                "items-center gap-1.5 rounded-md border p-4",
                 active
                   ? ""
                   : "",
